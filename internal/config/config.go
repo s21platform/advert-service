@@ -17,6 +17,14 @@ type Service struct {
 	Name string `env:"ADVERT_SERVICE_NAME"`
 }
 
+type Postgres struct {
+	User     string `env:"ADVERT_SERVICE_POSTGRES_USER"`
+	Password string `env:"ADVERT_SERVICE_POSTGRES_PASSWORD"`
+	Database string `env:"ADVERT_SERVICE_POSTGRES_DB"`
+	Host     string `env:"ADVERT_SERVICE_POSTGRES_HOST"`
+	Port     string `env:"ADVERT_SERVICE_POSTGRES_PORT"`
+}
+
 type Metrics struct {
 	Host string `env:"GRAFANA_HOST"`
 	Port int    `env:"GRAFANA_PORT"`
