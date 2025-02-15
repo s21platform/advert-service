@@ -21,7 +21,7 @@ func New(dbR DBRepo) *Service {
 func (s *Service) GetAdvert(ctx context.Context, in *advert.AdvertEmpty) (*advert.GetAdvertOut, error) {
 	ownerUUID, ok := ctx.Value(config.KeyUUID).(string)
 	if !ok {
-		return nil, status.Errorf(codes.Unauthenticated, "failed to find owner uuid")
+		return nil, status.Errorf(codes.Unauthenticated, "failed to find uuid")
 	}
 
 	adverts, err := s.dbR.GetAdvert(ownerUUID)
