@@ -17,16 +17,14 @@ func AuthInterceptor(
 	info *grpc.UnaryServerInfo,
 	handler grpc.UnaryHandler,
 ) (interface{}, error) {
-	_ = info
-
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		return nil, status.Errorf(codes.Unauthenticated, "no metadata found in context")
+		return nil, status.Errorf(codes.Unauthenticated, "no info in metadata")
 	}
 
-	userIDs := md["uuid"]
-	if len(userIDs) == 0 {
-		return nil, status.Errorf(codes.Unauthenticated, "no uuid found in metadata")
+	userIDs, ok := md["uuid"]
+	if !ok || len(userIDs) != 1 {
+		return nil, status.Errorf(codes.Unauthenticated, "no uuid or more than one in metadata")
 	}
 
 	ctx = context.WithValue(ctx, config.KeyUUID, userIDs[0])
