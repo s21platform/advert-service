@@ -4,7 +4,6 @@ go 1.22.8
 
 require (
 	github.com/ilyakaznacheev/cleanenv v1.5.0
-	github.com/s21platform/community-service v0.0.0-20250128150505-84cf0e020bf5
 	google.golang.org/grpc v1.70.0
 )
 
