@@ -3,8 +3,9 @@ package model
 import (
 	"time"
 
-	advert_proto "github.com/s21platform/advert-proto/advert-proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
+
+	advert_proto "github.com/s21platform/advert-proto/advert-proto"
 )
 
 type AdvertInfoList []*AdvertInfo

@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
+
 	"github.com/s21platform/advert-service/internal/config"
 	"github.com/s21platform/advert-service/internal/model"
 )
@@ -34,11 +36,17 @@ func (r *Repository) Close() {
 func (r *Repository) GetAdverts(UUID string) (*model.AdvertInfoList, error) {
 	var adverts model.AdvertInfoList
 
-	query := `
-		SELECT text_content, expired_at 
-		FROM advert_text 
-		WHERE owner_uuid = $1`
-	err := r.connection.Select(&adverts, query, UUID)
+	query := squirrel.Select("text_content", "expired_at").
+		From("advert_text").
+		Where(squirrel.Eq{"owner_uuid": UUID}).
+		PlaceholderFormat(squirrel.Dollar)
+
+	sql, args, err := query.ToSql()
+	if err != nil {
+		return nil, fmt.Errorf("failed to build SQL query: %v", err)
+	}
+
+	err = r.connection.Select(&adverts, sql, args...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get adverts from db: %v", err)
 	}

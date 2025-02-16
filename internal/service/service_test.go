@@ -7,12 +7,13 @@ import (
 	"time"
 
 	"github.com/golang/mock/gomock"
-	advertproto "github.com/s21platform/advert-proto/advert-proto"
-	"github.com/s21platform/advert-service/internal/config"
-	"github.com/s21platform/advert-service/internal/model"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	advertproto "github.com/s21platform/advert-proto/advert-proto"
+	"github.com/s21platform/advert-service/internal/config"
+	"github.com/s21platform/advert-service/internal/model"
 )
 
 func TestServer_GetAdverts(t *testing.T) {
@@ -73,7 +74,7 @@ func TestServer_GetAdverts(t *testing.T) {
 
 		st, ok := status.FromError(err)
 		assert.True(t, ok)
-		assert.Equal(t, codes.Unauthenticated, st.Code())
+		assert.Equal(t, codes.Internal, st.Code())
 		assert.Contains(t, st.Message(), "failed to find adverts: get err")
 	})
 }
