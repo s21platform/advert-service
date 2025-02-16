@@ -15,7 +15,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func TestServer_GetAdvert(t *testing.T) {
+func TestServer_GetAdverts(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
@@ -38,17 +38,15 @@ func TestServer_GetAdvert(t *testing.T) {
 			},
 		}
 
-		mockRepo.EXPECT().GetAdvert(uuid).Return(expectedAdverts, nil)
+		mockRepo.EXPECT().GetAdverts(uuid).Return(expectedAdverts, nil)
 
 		s := New(mockRepo)
-		adverts, err := s.GetAdvert(ctx, &advertproto.AdvertEmpty{})
+		adverts, err := s.GetAdverts(ctx, &advertproto.AdvertEmpty{})
 		assert.NoError(t, err)
-		assert.Equal(t, adverts, &advertproto.GetAdvertOut{Adverts: adverts.Adverts})
+		assert.Equal(t, adverts, &advertproto.GetAdvertsOut{Adverts: adverts.Adverts})
 	})
 
 	t.Run("get_no_uuid", func(t *testing.T) {
-		t.Parallel()
-
 		ctx := context.Background()
 
 		ctrl := gomock.NewController(t)
@@ -56,7 +54,7 @@ func TestServer_GetAdvert(t *testing.T) {
 		mockRepo := NewMockDBRepo(ctrl)
 
 		s := New(mockRepo)
-		_, err := s.GetAdvert(ctx, &advertproto.AdvertEmpty{})
+		_, err := s.GetAdverts(ctx, &advertproto.AdvertEmpty{})
 
 		st, ok := status.FromError(err)
 		assert.True(t, ok)
@@ -65,15 +63,13 @@ func TestServer_GetAdvert(t *testing.T) {
 	})
 
 	t.Run("get_err", func(t *testing.T) {
-		t.Parallel()
-
 		expectedAdverts := &model.AdvertInfoList{}
 		expectedErr := errors.New("get err")
 
-		mockRepo.EXPECT().GetAdvert(uuid).Return(expectedAdverts, expectedErr)
+		mockRepo.EXPECT().GetAdverts(uuid).Return(expectedAdverts, expectedErr)
 
 		s := New(mockRepo)
-		_, err := s.GetAdvert(ctx, &advertproto.AdvertEmpty{})
+		_, err := s.GetAdverts(ctx, &advertproto.AdvertEmpty{})
 
 		st, ok := status.FromError(err)
 		assert.True(t, ok)

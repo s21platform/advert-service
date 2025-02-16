@@ -18,18 +18,18 @@ func New(dbR DBRepo) *Service {
 	return &Service{dbR: dbR}
 }
 
-func (s *Service) GetAdvert(ctx context.Context, in *advert.AdvertEmpty) (*advert.GetAdvertOut, error) {
+func (s *Service) GetAdverts(ctx context.Context, _ *advert.AdvertEmpty) (*advert.GetAdvertsOut, error) {
 	ownerUUID, ok := ctx.Value(config.KeyUUID).(string)
 	if !ok {
 		return nil, status.Errorf(codes.Unauthenticated, "failed to find uuid")
 	}
 
-	adverts, err := s.dbR.GetAdvert(ownerUUID)
+	adverts, err := s.dbR.GetAdverts(ownerUUID)
 	if err != nil {
 		return nil, status.Errorf(codes.Unauthenticated, "failed to find adverts: %v", err)
 	}
 
-	return &advert.GetAdvertOut{
+	return &advert.GetAdvertsOut{
 		Adverts: adverts.FromDTO(),
 	}, nil
 }

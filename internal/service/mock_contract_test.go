@@ -34,17 +34,17 @@ func (m *MockDBRepo) EXPECT() *MockDBRepoMockRecorder {
 	return m.recorder
 }
 
-// GetAdvert mocks base method.
-func (m *MockDBRepo) GetAdvert(UUID string) (*model.AdvertInfoList, error) {
+// GetAdverts mocks base method.
+func (m *MockDBRepo) GetAdverts(UUID string) (*model.AdvertInfoList, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAdvert", UUID)
+	ret := m.ctrl.Call(m, "GetAdverts", UUID)
 	ret0, _ := ret[0].(*model.AdvertInfoList)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetAdvert indicates an expected call of GetAdvert.
-func (mr *MockDBRepoMockRecorder) GetAdvert(UUID interface{}) *gomock.Call {
+// GetAdverts indicates an expected call of GetAdverts.
+func (mr *MockDBRepoMockRecorder) GetAdverts(UUID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAdvert", reflect.TypeOf((*MockDBRepo)(nil).GetAdvert), UUID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAdverts", reflect.TypeOf((*MockDBRepo)(nil).GetAdverts), UUID)
 }

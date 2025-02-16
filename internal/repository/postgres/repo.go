@@ -31,7 +31,7 @@ func (r *Repository) Close() {
 	_ = r.connection.Close()
 }
 
-func (r *Repository) GetAdvert(UUID string) (*model.AdvertInfoList, error) {
+func (r *Repository) GetAdverts(UUID string) (*model.AdvertInfoList, error) {
 	var adverts model.AdvertInfoList
 
 	query := `
