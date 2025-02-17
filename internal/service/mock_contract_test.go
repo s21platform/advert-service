@@ -5,10 +5,11 @@
 package service
 
 import (
-	advert "github.com/s21platform/advert-proto/advert-proto"
 	reflect "reflect"
 
+  advert "github.com/s21platform/advert-proto/advert-proto"
 	gomock "github.com/golang/mock/gomock"
+	model "github.com/s21platform/advert-service/internal/model"
 )
 
 // MockDBRepo is a mock of DBRepo interface.
@@ -36,14 +37,29 @@ func (m *MockDBRepo) EXPECT() *MockDBRepoMockRecorder {
 
 // CreateAdvert mocks base method.
 func (m *MockDBRepo) CreateAdvert(UUID string, in *advert.CreateAdvertIn) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateAdvert", UUID, in)
-	ret0, _ := ret[0].(error)
-	return ret0
+  m.ctrl.T.Helper()
+  ret := m.ctrl.Call(m, "CreateAdvert", UUID, in)
+  ret0, _ := ret[0].(error)
+  return ret0
 }
 
 // CreateAdvert indicates an expected call of CreateAdvert.
 func (mr *MockDBRepoMockRecorder) CreateAdvert(UUID, in interface{}) *gomock.Call {
+  mr.mock.ctrl.T.Helper()
+  return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateAdvert", reflect.TypeOf((*MockDBRepo)(nil).CreateAdvert), UUID, in)
+}
+
+// GetAdverts mocks base method.
+func (m *MockDBRepo) GetAdverts(UUID string) (*model.AdvertInfoList, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAdverts", UUID)
+	ret0, _ := ret[0].(*model.AdvertInfoList)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAdverts indicates an expected call of GetAdverts.
+func (mr *MockDBRepoMockRecorder) GetAdverts(UUID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateAdvert", reflect.TypeOf((*MockDBRepo)(nil).CreateAdvert), UUID, in)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAdverts", reflect.TypeOf((*MockDBRepo)(nil).GetAdverts), UUID)
 }

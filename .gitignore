@@ -2,3 +2,4 @@
 .idea/
 docker-compose.yml
 .DS_Store
+linters.sh
