@@ -1,13 +1,14 @@
 package postgres
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
 
-  advert "github.com/s21platform/advert-proto/advert-proto"
+	advert "github.com/s21platform/advert-proto/advert-proto"
 	"github.com/s21platform/advert-service/internal/config"
 	"github.com/s21platform/advert-service/internal/model"
 )
@@ -35,15 +36,28 @@ func (r *Repository) Close() {
 }
 
 func (r *Repository) CreateAdvert(UUID string, in *advert.CreateAdvertIn) error {
-  query := `
-		INSERT INTO advert_text (owner_uuid, text_content, filter, expired_at)
-		VALUES ($1, $2, $3, $4)`
-  _, err := r.connection.Exec(query, UUID, in.Text, in.User, in.ExpiredAt)
-  if err != nil {
-    return fmt.Errorf("failed to create advert: %v", err)
-  }
+	filterJson, err := json.Marshal(in.User)
+	if err != nil {
+		return fmt.Errorf("failed to marshal filter: %v", err)
+	}
 
-  return nil
+	filterB := []byte(filterJson)
+
+	query := squirrel.Insert("advert_text").
+		Columns("owner_uuid", "text_content", "filter", "expired_at").
+		Values(UUID, in.Text, filterB, in.ExpiredAt)
+
+	sql, args, err := query.ToSql()
+	if err != nil {
+		return fmt.Errorf("failed to build SQL query: %v", err)
+	}
+
+	_, err = r.connection.Exec(sql, args...)
+	if err != nil {
+		return fmt.Errorf("failed to create advert: %v", err)
+	}
+
+	return nil
 }
 
 func (r *Repository) GetAdverts(UUID string) (*model.AdvertInfoList, error) {
