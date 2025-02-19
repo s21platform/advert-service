@@ -41,13 +41,17 @@ func (r *Repository) CreateAdvert(UUID string, in *advert.CreateAdvertIn) error 
 		return fmt.Errorf("failed to marshal filter: %v", err)
 	}
 
+	timeExpiredAt := in.ExpiredAt.AsTime()
+
 	filterB := []byte(filterJson)
 
 	query := squirrel.Insert("advert_text").
 		Columns("owner_uuid", "text_content", "filter", "expired_at").
-		Values(UUID, in.Text, filterB, in.ExpiredAt)
+		Values(UUID, in.Text, filterB, timeExpiredAt).
+		PlaceholderFormat(squirrel.Dollar)
 
 	sql, args, err := query.ToSql()
+
 	if err != nil {
 		return fmt.Errorf("failed to build SQL query: %v", err)
 	}
