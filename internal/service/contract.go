@@ -2,11 +2,13 @@
 package service
 
 import (
+	"context"
+
 	advert "github.com/s21platform/advert-proto/advert-proto"
 	"github.com/s21platform/advert-service/internal/model"
 )
 
 type DBRepo interface {
-	CreateAdvert(UUID string, in *advert.CreateAdvertIn) error
+	CreateAdvert(ctx context.Context, UUID string, in *advert.CreateAdvertIn) error
 	GetAdverts(UUID string) (*model.AdvertInfoList, error)
 }

@@ -25,7 +25,7 @@ func (s *Service) CreateAdvert(ctx context.Context, in *advert.CreateAdvertIn) (
 		return nil, status.Errorf(codes.Unauthenticated, "failed to retrieve uuid")
 	}
 
-	err := s.dbR.CreateAdvert(ownerUUID, in)
+	err := s.dbR.CreateAdvert(ctx, ownerUUID, in)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to create advert: %v", err)
 	}

@@ -1,7 +1,7 @@
 package postgres
 
 import (
-	"encoding/json"
+	"context"
 	"fmt"
 	"log"
 
@@ -35,19 +35,17 @@ func (r *Repository) Close() {
 	_ = r.connection.Close()
 }
 
-func (r *Repository) CreateAdvert(UUID string, in *advert.CreateAdvertIn) error {
-	filterJson, err := json.Marshal(in.User)
+func (r *Repository) CreateAdvert(ctx context.Context, UUID string, in *advert.CreateAdvertIn) error {
+	var advertObj model.Advert
+
+	advertObj, err := advertObj.ToDTO(UUID, in)
 	if err != nil {
-		return fmt.Errorf("failed to marshal filter: %v", err)
+		return fmt.Errorf("failed toconvert grpc message to dto: %v", err)
 	}
-
-	timeExpiredAt := in.ExpiredAt.AsTime()
-
-	filterB := []byte(filterJson)
 
 	query := squirrel.Insert("advert_text").
 		Columns("owner_uuid", "text_content", "filter", "expired_at").
-		Values(UUID, in.Text, filterB, timeExpiredAt).
+		Values(advertObj.OwnerUUID, advertObj.TextContent, advertObj.UserFilter, advertObj.ExpiresAt).
 		PlaceholderFormat(squirrel.Dollar)
 
 	sql, args, err := query.ToSql()
@@ -56,7 +54,9 @@ func (r *Repository) CreateAdvert(UUID string, in *advert.CreateAdvertIn) error 
 		return fmt.Errorf("failed to build SQL query: %v", err)
 	}
 
-	_, err = r.connection.Exec(sql, args...)
+	fmt.Println(sql)
+
+	_, err = r.connection.ExecContext(ctx, sql, args...)
 	if err != nil {
 		return fmt.Errorf("failed to create advert: %v", err)
 	}
