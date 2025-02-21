@@ -54,8 +54,6 @@ func (r *Repository) CreateAdvert(ctx context.Context, UUID string, in *advert.C
 		return fmt.Errorf("failed to build SQL query: %v", err)
 	}
 
-	fmt.Println(sql)
-
 	_, err = r.connection.ExecContext(ctx, sql, args...)
 	if err != nil {
 		return fmt.Errorf("failed to create advert: %v", err)

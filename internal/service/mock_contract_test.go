@@ -5,6 +5,7 @@
 package service
 
 import (
+	"context"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -36,7 +37,7 @@ func (m *MockDBRepo) EXPECT() *MockDBRepoMockRecorder {
 }
 
 // CreateAdvert mocks base method.
-func (m *MockDBRepo) CreateAdvert(UUID string, in *advert.CreateAdvertIn) error {
+func (m *MockDBRepo) CreateAdvert(ctx context.Context, UUID string, in *advert.CreateAdvertIn) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateAdvert", UUID, in)
 	ret0, _ := ret[0].(error)
