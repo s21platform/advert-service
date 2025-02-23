@@ -17,7 +17,7 @@ type Advert struct {
 }
 
 type UserFilter struct {
-	Os string `json:"os"`
+	Os []int64 `json:"os,omitempty"`
 }
 
 func (uf UserFilter) Value() (driver.Value, error) {
