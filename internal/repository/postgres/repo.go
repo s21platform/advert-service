@@ -1,12 +1,14 @@
 package postgres
 
 import (
+	"context"
 	"fmt"
 	"log"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
 
+	advert "github.com/s21platform/advert-proto/advert-proto"
 	"github.com/s21platform/advert-service/internal/config"
 	"github.com/s21platform/advert-service/internal/model"
 )
@@ -31,6 +33,33 @@ func New(cfg *config.Config) *Repository {
 
 func (r *Repository) Close() {
 	_ = r.connection.Close()
+}
+
+func (r *Repository) CreateAdvert(ctx context.Context, UUID string, in *advert.CreateAdvertIn) error {
+	var advertObj model.Advert
+
+	advertObj, err := advertObj.ToDTO(UUID, in)
+	if err != nil {
+		return fmt.Errorf("failed toconvert grpc message to dto: %v", err)
+	}
+
+	query := squirrel.Insert("advert_text").
+		Columns("owner_uuid", "text_content", "filter", "expired_at").
+		Values(advertObj.OwnerUUID, advertObj.TextContent, advertObj.UserFilter, advertObj.ExpiresAt).
+		PlaceholderFormat(squirrel.Dollar)
+
+	sql, args, err := query.ToSql()
+
+	if err != nil {
+		return fmt.Errorf("failed to build SQL query: %v", err)
+	}
+
+	_, err = r.connection.ExecContext(ctx, sql, args...)
+	if err != nil {
+		return fmt.Errorf("failed to create advert: %v", err)
+	}
+
+	return nil
 }
 
 func (r *Repository) GetAdverts(UUID string) (*model.AdvertInfoList, error) {
