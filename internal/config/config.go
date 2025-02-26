@@ -8,6 +8,7 @@ import (
 
 type Config struct {
 	Service  Service
+	Postgres Postgres
 	Metrics  Metrics
 	Platform Platform
 }
