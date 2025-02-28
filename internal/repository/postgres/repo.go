@@ -105,7 +105,7 @@ func (r *Repository) RestoreAdvert(ID int64) error {
 		return fmt.Errorf("failed to get advert data: %v", err)
 	}
 
-	timeDiff := time.Now().Sub(canceledAt)
+	timeDiff := time.Since(canceledAt)
 	newExpiresAt := expiredAt.Add(timeDiff)
 
 	updateQuery := squirrel.
