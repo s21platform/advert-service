@@ -41,7 +41,7 @@ func (uf UserFilter) Scan(value interface{}) error {
 	return json.Unmarshal(b, &uf)
 }
 
-func (a *Advert) ToDTO(UUID string, in *advert.CreateAdvertIn) (Advert, error) {
+func (a *Advert) AdvertToDTO(UUID string, in *advert.CreateAdvertIn) (Advert, error) {
 	result := Advert{
 		OwnerUUID:   UUID,
 		TextContent: in.Text,

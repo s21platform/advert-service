@@ -11,4 +11,5 @@ import (
 type DBRepo interface {
 	CreateAdvert(ctx context.Context, UUID string, in *advert.CreateAdvertIn) error
 	GetAdverts(UUID string) (*model.AdvertInfoList, error)
+	CancelAdvert(ctx context.Context, in *advert.CancelAdvertIn) error
 }
