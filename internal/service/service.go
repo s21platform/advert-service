@@ -48,3 +48,12 @@ func (s *Service) GetAdverts(ctx context.Context, _ *advert.AdvertEmpty) (*adver
 		Adverts: adverts.FromDTO(),
 	}, nil
 }
+
+func (s *Service) RestoreAdvert(_ context.Context, in *advert.RestoreAdvertIn) (*advert.AdvertEmpty, error) {
+	err := s.dbR.RestoreAdvert(in.Id)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to restore advert: %v", err)
+	}
+
+	return &advert.AdvertEmpty{}, nil
+}

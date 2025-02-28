@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
@@ -81,4 +82,48 @@ func (r *Repository) GetAdverts(UUID string) (*model.AdvertInfoList, error) {
 	}
 
 	return &adverts, nil
+}
+
+func (r *Repository) RestoreAdvert(ID int64) error {
+	var canceledAt time.Time
+	var expiredAt time.Time
+
+	selectQuery := squirrel.
+		Select("canceled_at", "expired_at").
+		From("advert_text").
+		Where(squirrel.Eq{"id": ID}).
+		PlaceholderFormat(squirrel.Dollar)
+
+	sql, args, err := selectQuery.ToSql()
+	if err != nil {
+		return fmt.Errorf("failed to build select query: %v", err)
+	}
+
+	err = r.connection.QueryRow(sql, args...).Scan(&canceledAt, &expiredAt)
+	if err != nil {
+		return fmt.Errorf("failed to get advert data: %v", err)
+	}
+
+	timeDiff := time.Now().Sub(canceledAt)
+	newExpiresAt := expiredAt.Add(timeDiff)
+
+	updateQuery := squirrel.
+		Update("advert_text").
+		Set("is_canceled", false).
+		Set("canceled_at", nil).
+		Set("expired_at", newExpiresAt).
+		Where(squirrel.Eq{"id": ID}).
+		PlaceholderFormat(squirrel.Dollar)
+
+	sql, args, err = updateQuery.ToSql()
+	if err != nil {
+		return fmt.Errorf("failed to build update query: %v", err)
+	}
+
+	_, err = r.connection.Exec(sql, args...)
+	if err != nil {
+		return fmt.Errorf("failed to update advert: %v", err)
+	}
+
+	return nil
 }

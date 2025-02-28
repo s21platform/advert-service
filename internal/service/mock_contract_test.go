@@ -5,11 +5,11 @@
 package service
 
 import (
-	"context"
+	context "context"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	advert "github.com/s21platform/advert-proto/advert-proto"
+	advert_proto "github.com/s21platform/advert-proto/advert-proto"
 	model "github.com/s21platform/advert-service/internal/model"
 )
 
@@ -37,17 +37,17 @@ func (m *MockDBRepo) EXPECT() *MockDBRepoMockRecorder {
 }
 
 // CreateAdvert mocks base method.
-func (m *MockDBRepo) CreateAdvert(ctx context.Context, UUID string, in *advert.CreateAdvertIn) error {
+func (m *MockDBRepo) CreateAdvert(ctx context.Context, UUID string, in *advert_proto.CreateAdvertIn) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateAdvert", UUID, in)
+	ret := m.ctrl.Call(m, "CreateAdvert", ctx, UUID, in)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // CreateAdvert indicates an expected call of CreateAdvert.
-func (mr *MockDBRepoMockRecorder) CreateAdvert(UUID, in interface{}) *gomock.Call {
+func (mr *MockDBRepoMockRecorder) CreateAdvert(ctx, UUID, in interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateAdvert", reflect.TypeOf((*MockDBRepo)(nil).CreateAdvert), UUID, in)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateAdvert", reflect.TypeOf((*MockDBRepo)(nil).CreateAdvert), ctx, UUID, in)
 }
 
 // GetAdverts mocks base method.
@@ -63,4 +63,18 @@ func (m *MockDBRepo) GetAdverts(UUID string) (*model.AdvertInfoList, error) {
 func (mr *MockDBRepoMockRecorder) GetAdverts(UUID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAdverts", reflect.TypeOf((*MockDBRepo)(nil).GetAdverts), UUID)
+}
+
+// RestoreAdvert mocks base method.
+func (m *MockDBRepo) RestoreAdvert(ID int64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RestoreAdvert", ID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RestoreAdvert indicates an expected call of RestoreAdvert.
+func (mr *MockDBRepoMockRecorder) RestoreAdvert(ID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RestoreAdvert", reflect.TypeOf((*MockDBRepo)(nil).RestoreAdvert), ID)
 }

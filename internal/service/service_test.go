@@ -91,7 +91,7 @@ func TestServer_CreateAdverts(t *testing.T) {
 	mockRepo := NewMockDBRepo(ctrl)
 
 	t.Run("create_ok", func(t *testing.T) {
-		mockRepo.EXPECT().CreateAdvert(uuid, gomock.Any()).Return(nil)
+		mockRepo.EXPECT().CreateAdvert(ctx, uuid, gomock.Any()).Return(nil)
 
 		s := New(mockRepo)
 		_, err := s.CreateAdvert(ctx, &advertproto.CreateAdvertIn{})
@@ -112,5 +112,54 @@ func TestServer_CreateAdverts(t *testing.T) {
 		assert.True(t, ok)
 		assert.Equal(t, codes.Unauthenticated, st.Code())
 		assert.Contains(t, st.Message(), "failed to retrieve uuid")
+	})
+
+	t.Run("create_err", func(t *testing.T) {
+		expectedErr := errors.New("get err")
+
+		mockRepo.EXPECT().CreateAdvert(ctx, uuid, &advertproto.CreateAdvertIn{}).Return(expectedErr)
+
+		s := New(mockRepo)
+		_, err := s.CreateAdvert(ctx, &advertproto.CreateAdvertIn{})
+
+		st, ok := status.FromError(err)
+		assert.True(t, ok)
+		assert.Equal(t, codes.Internal, st.Code())
+		assert.Contains(t, st.Message(), "failed to create advert: get err")
+	})
+}
+
+func TestServer_RestoreAdvert(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	ID := int64(123)
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockRepo := NewMockDBRepo(ctrl)
+
+	t.Run("get_ok", func(t *testing.T) {
+		mockRepo.EXPECT().RestoreAdvert(ID).Return(nil)
+
+		s := New(mockRepo)
+		result, err := s.RestoreAdvert(ctx, &advertproto.RestoreAdvertIn{Id: ID})
+
+		assert.NoError(t, err)
+		assert.Equal(t, result, &advertproto.AdvertEmpty{})
+	})
+
+	t.Run("get_err", func(t *testing.T) {
+		expectedErr := errors.New("get err")
+
+		mockRepo.EXPECT().RestoreAdvert(ID).Return(expectedErr)
+
+		s := New(mockRepo)
+		_, err := s.RestoreAdvert(ctx, &advertproto.RestoreAdvertIn{Id: ID})
+
+		st, ok := status.FromError(err)
+		assert.True(t, ok)
+		assert.Equal(t, codes.Internal, st.Code())
+		assert.Contains(t, st.Message(), "get err")
 	})
 }
