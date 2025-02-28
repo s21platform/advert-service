@@ -10,6 +10,7 @@ import (
 	"github.com/jmoiron/sqlx"
 
 	advert "github.com/s21platform/advert-proto/advert-proto"
+
 	"github.com/s21platform/advert-service/internal/config"
 	"github.com/s21platform/advert-service/internal/model"
 )

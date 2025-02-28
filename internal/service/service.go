@@ -7,6 +7,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	advert "github.com/s21platform/advert-proto/advert-proto"
+
 	"github.com/s21platform/advert-service/internal/config"
 )
 
