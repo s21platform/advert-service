@@ -85,36 +85,17 @@ func (r *Repository) GetAdverts(UUID string) (*model.AdvertInfoList, error) {
 }
 
 func (r *Repository) CancelAdvert(ctx context.Context, in *advert.CancelAdvertIn) error {
-	selectQuery := squirrel.
-		Select("is_canceled", "expired_at").
-		From("advert_text").
-		Where(squirrel.Eq{"id": in.Id}).
-		PlaceholderFormat(squirrel.Dollar)
-
-	sql, args, err := selectQuery.ToSql()
-	if err != nil {
-		return fmt.Errorf("failed to build select query: %v", err)
-	}
-
-	var isCanceled bool
-	var expiredAt time.Time
-
-	err = r.connection.QueryRow(sql, args...).Scan(&isCanceled, &expiredAt)
-	if err != nil {
-		return fmt.Errorf("failed to get advert data: %v", err)
-	}
-
-	if isCanceled {
-		return fmt.Errorf("advert already canceled")
-	}
-
 	updateQuery := squirrel.Update("advert_text").
 		Set("is_canceled", true).
 		Set("canceled_at", time.Now()).
-		Where(squirrel.Eq{"id": in.Id}).
+		Where(squirrel.And{
+			squirrel.Eq{"id": in.Id},
+			squirrel.Eq{"is_canceled": false},
+			squirrel.Gt{"expired_at": time.Now().Unix()},
+		}).
 		PlaceholderFormat(squirrel.Dollar)
 
-	sql, args, err = updateQuery.ToSql()
+	sql, args, err := updateQuery.ToSql()
 	if err != nil {
 		return fmt.Errorf("failed to build update query: %v", err)
 	}
