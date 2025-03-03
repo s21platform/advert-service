@@ -91,7 +91,7 @@ func TestServer_CreateAdverts(t *testing.T) {
 	mockRepo := NewMockDBRepo(ctrl)
 
 	t.Run("create_ok", func(t *testing.T) {
-		mockRepo.EXPECT().CreateAdvert(uuid, gomock.Any()).Return(nil)
+		mockRepo.EXPECT().CreateAdvert(ctx, uuid, gomock.Any()).Return(nil)
 
 		s := New(mockRepo)
 		_, err := s.CreateAdvert(ctx, &advertproto.CreateAdvertIn{})
@@ -112,5 +112,39 @@ func TestServer_CreateAdverts(t *testing.T) {
 		assert.True(t, ok)
 		assert.Equal(t, codes.Unauthenticated, st.Code())
 		assert.Contains(t, st.Message(), "failed to retrieve uuid")
+	})
+}
+
+func TestService_CancelAdvert(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	uuid := "test-uuid"
+	ctx = context.WithValue(ctx, config.KeyUUID, uuid)
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockRepo := NewMockDBRepo(ctrl)
+
+	t.Run("cancel_ok", func(t *testing.T) {
+		mockRepo.EXPECT().CancelAdvert(ctx, gomock.Any()).Return(nil)
+
+		s := New(mockRepo)
+		_, err := s.CancelAdvert(ctx, &advertproto.CancelAdvertIn{})
+		assert.NoError(t, err)
+	})
+
+	t.Run("cancel_error", func(t *testing.T) {
+		expectedErr := errors.New("cancel err")
+
+		mockRepo.EXPECT().CancelAdvert(ctx, gomock.Any()).Return(expectedErr)
+
+		s := New(mockRepo)
+		_, err := s.CancelAdvert(ctx, &advertproto.CancelAdvertIn{})
+
+		st, ok := status.FromError(err)
+		assert.True(t, ok)
+		assert.Equal(t, codes.Internal, st.Code())
+		assert.Contains(t, st.Message(), "failed to cancel advert: cancel err")
 	})
 }

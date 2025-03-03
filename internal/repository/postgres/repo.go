@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
@@ -38,7 +39,7 @@ func (r *Repository) Close() {
 func (r *Repository) CreateAdvert(ctx context.Context, UUID string, in *advert.CreateAdvertIn) error {
 	var advertObj model.Advert
 
-	advertObj, err := advertObj.ToDTO(UUID, in)
+	advertObj, err := advertObj.AdvertToDTO(UUID, in)
 	if err != nil {
 		return fmt.Errorf("failed toconvert grpc message to dto: %v", err)
 	}
@@ -81,4 +82,28 @@ func (r *Repository) GetAdverts(UUID string) (*model.AdvertInfoList, error) {
 	}
 
 	return &adverts, nil
+}
+
+func (r *Repository) CancelAdvert(ctx context.Context, in *advert.CancelAdvertIn) error {
+	updateQuery := squirrel.Update("advert_text").
+		Set("is_canceled", true).
+		Set("canceled_at", time.Now()).
+		Where(squirrel.And{
+			squirrel.Eq{"id": in.Id},
+			squirrel.Eq{"is_canceled": false},
+			squirrel.Gt{"expired_at": time.Now().Unix()},
+		}).
+		PlaceholderFormat(squirrel.Dollar)
+
+	sql, args, err := updateQuery.ToSql()
+	if err != nil {
+		return fmt.Errorf("failed to build update query: %v", err)
+	}
+
+	_, err = r.connection.ExecContext(ctx, sql, args...)
+	if err != nil {
+		return fmt.Errorf("failed to set cancel status in data: %v", err)
+	}
+
+	return nil
 }

@@ -48,3 +48,12 @@ func (s *Service) GetAdverts(ctx context.Context, _ *advert.AdvertEmpty) (*adver
 		Adverts: adverts.FromDTO(),
 	}, nil
 }
+
+func (s *Service) CancelAdvert(ctx context.Context, in *advert.CancelAdvertIn) (*advert.AdvertEmpty, error) {
+	err := s.dbR.CancelAdvert(ctx, in)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to cancel advert: %v", err)
+	}
+
+	return &advert.AdvertEmpty{}, nil
+}
