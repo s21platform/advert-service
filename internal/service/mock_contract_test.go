@@ -7,6 +7,7 @@ package service
 import (
 	context "context"
 	reflect "reflect"
+	time "time"
 
 	gomock "github.com/golang/mock/gomock"
 	advert_proto "github.com/s21platform/advert-proto/advert-proto"
@@ -36,6 +37,20 @@ func (m *MockDBRepo) EXPECT() *MockDBRepoMockRecorder {
 	return m.recorder
 }
 
+// CancelAdvert mocks base method.
+func (m *MockDBRepo) CancelAdvert(ctx context.Context, in *advert_proto.CancelAdvertIn) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CancelAdvert", ctx, in)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CancelAdvert indicates an expected call of CancelAdvert.
+func (mr *MockDBRepoMockRecorder) CancelAdvert(ctx, in interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CancelAdvert", reflect.TypeOf((*MockDBRepo)(nil).CancelAdvert), ctx, in)
+}
+
 // CreateAdvert mocks base method.
 func (m *MockDBRepo) CreateAdvert(ctx context.Context, UUID string, in *advert_proto.CreateAdvertIn) error {
 	m.ctrl.T.Helper()
@@ -48,6 +63,21 @@ func (m *MockDBRepo) CreateAdvert(ctx context.Context, UUID string, in *advert_p
 func (mr *MockDBRepoMockRecorder) CreateAdvert(ctx, UUID, in interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateAdvert", reflect.TypeOf((*MockDBRepo)(nil).CreateAdvert), ctx, UUID, in)
+}
+
+// GetAdvertCancelExpiry mocks base method.
+func (m *MockDBRepo) GetAdvertCancelExpiry(ID int64) (*model.AdvertCancelExpiry, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAdvertCancelExpiry", ID)
+	ret0, _ := ret[0].(*model.AdvertCancelExpiry)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAdvertCancelExpiry indicates an expected call of GetAdvertCancelExpiry.
+func (mr *MockDBRepoMockRecorder) GetAdvertCancelExpiry(ID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAdvertCancelExpiry", reflect.TypeOf((*MockDBRepo)(nil).GetAdvertCancelExpiry), ID)
 }
 
 // GetAdverts mocks base method.
@@ -66,15 +96,15 @@ func (mr *MockDBRepoMockRecorder) GetAdverts(UUID interface{}) *gomock.Call {
 }
 
 // RestoreAdvert mocks base method.
-func (m *MockDBRepo) RestoreAdvert(ID int64) error {
+func (m *MockDBRepo) RestoreAdvert(ID int64, newExpiredAt time.Time) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RestoreAdvert", ID)
+	ret := m.ctrl.Call(m, "RestoreAdvert", ID, newExpiredAt)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // RestoreAdvert indicates an expected call of RestoreAdvert.
-func (mr *MockDBRepoMockRecorder) RestoreAdvert(ID interface{}) *gomock.Call {
+func (mr *MockDBRepoMockRecorder) RestoreAdvert(ID, newExpiredAt interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RestoreAdvert", reflect.TypeOf((*MockDBRepo)(nil).RestoreAdvert), ID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RestoreAdvert", reflect.TypeOf((*MockDBRepo)(nil).RestoreAdvert), ID, newExpiredAt)
 }

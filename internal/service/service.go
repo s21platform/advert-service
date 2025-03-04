@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"time"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -60,7 +61,19 @@ func (s *Service) CancelAdvert(ctx context.Context, in *advert.CancelAdvertIn) (
 }
 
 func (s *Service) RestoreAdvert(_ context.Context, in *advert.RestoreAdvertIn) (*advert.AdvertEmpty, error) {
-	err := s.dbR.RestoreAdvert(in.Id)
+	cancelExpiry, err := s.dbR.GetAdvertCancelExpiry(in.Id)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to get advert cancel info: %v", err)
+	}
+
+	if cancelExpiry.CanceledAt == nil {
+		return nil, status.Errorf(codes.Internal, "failed to advert wasn't canceled")
+	}
+
+	timeDiff := time.Since(*cancelExpiry.CanceledAt)
+	newExpiredAt := cancelExpiry.ExpiredAt.Add(timeDiff)
+
+	err = s.dbR.RestoreAdvert(in.Id, newExpiredAt)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to restore advert: %v", err)
 	}

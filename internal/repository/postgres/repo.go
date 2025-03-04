@@ -109,43 +109,43 @@ func (r *Repository) CancelAdvert(ctx context.Context, in *advert.CancelAdvertIn
 	return nil
 }
 
-func (r *Repository) RestoreAdvert(ID int64) error {
-	var canceledAt time.Time
-	var expiredAt time.Time
+func (r *Repository) GetAdvertCancelExpiry(ID int64) (*model.AdvertCancelExpiry, error) {
+	var cancelExpiry model.AdvertCancelExpiry
 
-	selectQuery := squirrel.
+	query := squirrel.
 		Select("canceled_at", "expired_at").
 		From("advert_text").
 		Where(squirrel.Eq{"id": ID}).
 		PlaceholderFormat(squirrel.Dollar)
 
-	sql, args, err := selectQuery.ToSql()
+	sql, args, err := query.ToSql()
 	if err != nil {
-		return fmt.Errorf("failed to build select query: %v", err)
+		return nil, fmt.Errorf("failed to build select query: %v", err)
 	}
 
-	err = r.connection.QueryRow(sql, args...).Scan(&canceledAt, &expiredAt)
+	err = r.connection.GetContext(context.Background(), &cancelExpiry, sql, args...)
 	if err != nil {
-		return fmt.Errorf("failed to get advert data: %v", err)
+		return nil, fmt.Errorf("failed to get advert data: %v", err)
 	}
 
-	timeDiff := time.Since(canceledAt)
-	newExpiresAt := expiredAt.Add(timeDiff)
+	return &cancelExpiry, nil
+}
 
-	updateQuery := squirrel.
+func (r *Repository) RestoreAdvert(ID int64, newExpiredAt time.Time) error {
+	query := squirrel.
 		Update("advert_text").
 		Set("is_canceled", false).
 		Set("canceled_at", nil).
-		Set("expired_at", newExpiresAt).
+		Set("expired_at", newExpiredAt).
 		Where(squirrel.Eq{"id": ID}).
 		PlaceholderFormat(squirrel.Dollar)
 
-	sql, args, err = updateQuery.ToSql()
+	sql, args, err := query.ToSql()
 	if err != nil {
 		return fmt.Errorf("failed to build update query: %v", err)
 	}
 
-	_, err = r.connection.Exec(sql, args...)
+	_, err = r.connection.ExecContext(context.Background(), sql, args...)
 	if err != nil {
 		return fmt.Errorf("failed to update advert: %v", err)
 	}

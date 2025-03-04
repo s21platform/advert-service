@@ -3,6 +3,7 @@ package service
 
 import (
 	"context"
+	"time"
 
 	advert "github.com/s21platform/advert-proto/advert-proto"
 
@@ -13,5 +14,6 @@ type DBRepo interface {
 	CreateAdvert(ctx context.Context, UUID string, in *advert.CreateAdvertIn) error
 	GetAdverts(UUID string) (*model.AdvertInfoList, error)
 	CancelAdvert(ctx context.Context, in *advert.CancelAdvertIn) error
-	RestoreAdvert(ID int64) error
+	GetAdvertCancelExpiry(ID int64) (*model.AdvertCancelExpiry, error)
+	RestoreAdvert(ID int64, newExpiredAt time.Time) error
 }

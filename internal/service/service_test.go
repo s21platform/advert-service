@@ -140,8 +140,18 @@ func TestServer_RestoreAdvert(t *testing.T) {
 	defer ctrl.Finish()
 	mockRepo := NewMockDBRepo(ctrl)
 
-	t.Run("get_ok", func(t *testing.T) {
-		mockRepo.EXPECT().RestoreAdvert(ID).Return(nil)
+	t.Run("should_return_ok", func(t *testing.T) {
+		baseTime := time.Date(2025, 3, 4, 21, 0, 0, 0, time.UTC)
+		canceledAt := baseTime
+		expiredAt := baseTime.Add(1 * time.Hour)
+
+		expectedCancelExpiry := model.AdvertCancelExpiry{
+			CanceledAt: &canceledAt,
+			ExpiredAt:  &expiredAt,
+		}
+
+		mockRepo.EXPECT().GetAdvertCancelExpiry(ID).Return(&expectedCancelExpiry, nil)
+		mockRepo.EXPECT().RestoreAdvert(ID, gomock.Any()).Return(nil)
 
 		s := New(mockRepo)
 		result, err := s.RestoreAdvert(ctx, &advertproto.RestoreAdvertIn{Id: ID})
@@ -150,10 +160,9 @@ func TestServer_RestoreAdvert(t *testing.T) {
 		assert.Equal(t, result, &advertproto.AdvertEmpty{})
 	})
 
-	t.Run("get_err", func(t *testing.T) {
-		expectedErr := errors.New("get err")
-
-		mockRepo.EXPECT().RestoreAdvert(ID).Return(expectedErr)
+	t.Run("should_return_err_cancel_expiry", func(t *testing.T) {
+		expectedErr := errors.New("err")
+		mockRepo.EXPECT().GetAdvertCancelExpiry(ID).Return(nil, expectedErr)
 
 		s := New(mockRepo)
 		_, err := s.RestoreAdvert(ctx, &advertproto.RestoreAdvertIn{Id: ID})
@@ -161,7 +170,52 @@ func TestServer_RestoreAdvert(t *testing.T) {
 		st, ok := status.FromError(err)
 		assert.True(t, ok)
 		assert.Equal(t, codes.Internal, st.Code())
-		assert.Contains(t, st.Message(), "get err")
+		assert.Contains(t, st.Message(), "err")
+	})
+
+	t.Run("should_return_err_nil_canceled_at", func(t *testing.T) {
+		baseTime := time.Date(2025, 3, 4, 21, 0, 0, 0, time.UTC)
+		expiredAt := baseTime.Add(1 * time.Hour)
+
+		expectedCancelExpiry := model.AdvertCancelExpiry{
+			CanceledAt: nil,
+			ExpiredAt:  &expiredAt,
+		}
+
+		mockRepo.EXPECT().GetAdvertCancelExpiry(ID).Return(&expectedCancelExpiry, nil)
+
+		s := New(mockRepo)
+		_, err := s.RestoreAdvert(ctx, &advertproto.RestoreAdvertIn{Id: ID})
+
+		st, ok := status.FromError(err)
+		assert.True(t, ok)
+		assert.Equal(t, codes.Internal, st.Code())
+		assert.Contains(t, st.Message(), "failed to advert wasn't canceled")
+	})
+
+	t.Run("should_return_err_restore_advert", func(t *testing.T) {
+		expectedErr := errors.New("err")
+
+		baseTime := time.Date(2025, 3, 4, 21, 0, 0, 0, time.UTC)
+		canceledAt := baseTime
+		expiredAt := baseTime.Add(1 * time.Hour)
+
+		expectedCancelExpiry := model.AdvertCancelExpiry{
+			CanceledAt: &canceledAt,
+			ExpiredAt:  &expiredAt,
+		}
+
+		mockRepo.EXPECT().GetAdvertCancelExpiry(ID).Return(&expectedCancelExpiry, nil)
+
+		mockRepo.EXPECT().RestoreAdvert(ID, gomock.Any()).Return(expectedErr)
+
+		s := New(mockRepo)
+		_, err := s.RestoreAdvert(ctx, &advertproto.RestoreAdvertIn{Id: ID})
+
+		st, ok := status.FromError(err)
+		assert.True(t, ok)
+		assert.Equal(t, codes.Internal, st.Code())
+		assert.Contains(t, st.Message(), "err")
 	})
 }
 
