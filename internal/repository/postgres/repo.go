@@ -109,7 +109,7 @@ func (r *Repository) CancelAdvert(ctx context.Context, in *advert.CancelAdvertIn
 	return nil
 }
 
-func (r *Repository) GetAdvertCancelExpiry(ID int64) (*model.AdvertCancelExpiry, error) {
+func (r *Repository) GetAdvertCancelExpiry(ctx context.Context, ID int64) (*model.AdvertCancelExpiry, error) {
 	var cancelExpiry model.AdvertCancelExpiry
 
 	query := squirrel.
@@ -123,7 +123,7 @@ func (r *Repository) GetAdvertCancelExpiry(ID int64) (*model.AdvertCancelExpiry,
 		return nil, fmt.Errorf("failed to build select query: %v", err)
 	}
 
-	err = r.connection.GetContext(context.Background(), &cancelExpiry, sql, args...)
+	err = r.connection.GetContext(ctx, &cancelExpiry, sql, args...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get advert data: %v", err)
 	}
@@ -131,7 +131,7 @@ func (r *Repository) GetAdvertCancelExpiry(ID int64) (*model.AdvertCancelExpiry,
 	return &cancelExpiry, nil
 }
 
-func (r *Repository) RestoreAdvert(ID int64, newExpiredAt time.Time) error {
+func (r *Repository) RestoreAdvert(ctx context.Context, ID int64, newExpiredAt time.Time) error {
 	query := squirrel.
 		Update("advert_text").
 		Set("is_canceled", false).
@@ -145,7 +145,7 @@ func (r *Repository) RestoreAdvert(ID int64, newExpiredAt time.Time) error {
 		return fmt.Errorf("failed to build update query: %v", err)
 	}
 
-	_, err = r.connection.ExecContext(context.Background(), sql, args...)
+	_, err = r.connection.ExecContext(ctx, sql, args...)
 	if err != nil {
 		return fmt.Errorf("failed to update advert: %v", err)
 	}

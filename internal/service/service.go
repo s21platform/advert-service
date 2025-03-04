@@ -60,8 +60,8 @@ func (s *Service) CancelAdvert(ctx context.Context, in *advert.CancelAdvertIn) (
 	return &advert.AdvertEmpty{}, nil
 }
 
-func (s *Service) RestoreAdvert(_ context.Context, in *advert.RestoreAdvertIn) (*advert.AdvertEmpty, error) {
-	cancelExpiry, err := s.dbR.GetAdvertCancelExpiry(in.Id)
+func (s *Service) RestoreAdvert(ctx context.Context, in *advert.RestoreAdvertIn) (*advert.AdvertEmpty, error) {
+	cancelExpiry, err := s.dbR.GetAdvertCancelExpiry(ctx, in.Id)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to get advert cancel info: %v", err)
 	}
@@ -73,7 +73,7 @@ func (s *Service) RestoreAdvert(_ context.Context, in *advert.RestoreAdvertIn) (
 	timeDiff := time.Since(*cancelExpiry.CanceledAt)
 	newExpiredAt := cancelExpiry.ExpiredAt.Add(timeDiff)
 
-	err = s.dbR.RestoreAdvert(in.Id, newExpiredAt)
+	err = s.dbR.RestoreAdvert(ctx, in.Id, newExpiredAt)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to restore advert: %v", err)
 	}

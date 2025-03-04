@@ -150,8 +150,8 @@ func TestServer_RestoreAdvert(t *testing.T) {
 			ExpiredAt:  &expiredAt,
 		}
 
-		mockRepo.EXPECT().GetAdvertCancelExpiry(ID).Return(&expectedCancelExpiry, nil)
-		mockRepo.EXPECT().RestoreAdvert(ID, gomock.Any()).Return(nil)
+		mockRepo.EXPECT().GetAdvertCancelExpiry(ctx, ID).Return(&expectedCancelExpiry, nil)
+		mockRepo.EXPECT().RestoreAdvert(ctx, ID, gomock.Any()).Return(nil)
 
 		s := New(mockRepo)
 		result, err := s.RestoreAdvert(ctx, &advertproto.RestoreAdvertIn{Id: ID})
@@ -162,7 +162,7 @@ func TestServer_RestoreAdvert(t *testing.T) {
 
 	t.Run("should_return_err_cancel_expiry", func(t *testing.T) {
 		expectedErr := errors.New("err")
-		mockRepo.EXPECT().GetAdvertCancelExpiry(ID).Return(nil, expectedErr)
+		mockRepo.EXPECT().GetAdvertCancelExpiry(ctx, ID).Return(nil, expectedErr)
 
 		s := New(mockRepo)
 		_, err := s.RestoreAdvert(ctx, &advertproto.RestoreAdvertIn{Id: ID})
@@ -182,7 +182,7 @@ func TestServer_RestoreAdvert(t *testing.T) {
 			ExpiredAt:  &expiredAt,
 		}
 
-		mockRepo.EXPECT().GetAdvertCancelExpiry(ID).Return(&expectedCancelExpiry, nil)
+		mockRepo.EXPECT().GetAdvertCancelExpiry(ctx, ID).Return(&expectedCancelExpiry, nil)
 
 		s := New(mockRepo)
 		_, err := s.RestoreAdvert(ctx, &advertproto.RestoreAdvertIn{Id: ID})
@@ -205,9 +205,9 @@ func TestServer_RestoreAdvert(t *testing.T) {
 			ExpiredAt:  &expiredAt,
 		}
 
-		mockRepo.EXPECT().GetAdvertCancelExpiry(ID).Return(&expectedCancelExpiry, nil)
+		mockRepo.EXPECT().GetAdvertCancelExpiry(ctx, ID).Return(&expectedCancelExpiry, nil)
 
-		mockRepo.EXPECT().RestoreAdvert(ID, gomock.Any()).Return(expectedErr)
+		mockRepo.EXPECT().RestoreAdvert(ctx, ID, gomock.Any()).Return(expectedErr)
 
 		s := New(mockRepo)
 		_, err := s.RestoreAdvert(ctx, &advertproto.RestoreAdvertIn{Id: ID})

@@ -66,18 +66,18 @@ func (mr *MockDBRepoMockRecorder) CreateAdvert(ctx, UUID, in interface{}) *gomoc
 }
 
 // GetAdvertCancelExpiry mocks base method.
-func (m *MockDBRepo) GetAdvertCancelExpiry(ID int64) (*model.AdvertCancelExpiry, error) {
+func (m *MockDBRepo) GetAdvertCancelExpiry(ctx context.Context, ID int64) (*model.AdvertCancelExpiry, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAdvertCancelExpiry", ID)
+	ret := m.ctrl.Call(m, "GetAdvertCancelExpiry", ctx, ID)
 	ret0, _ := ret[0].(*model.AdvertCancelExpiry)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetAdvertCancelExpiry indicates an expected call of GetAdvertCancelExpiry.
-func (mr *MockDBRepoMockRecorder) GetAdvertCancelExpiry(ID interface{}) *gomock.Call {
+func (mr *MockDBRepoMockRecorder) GetAdvertCancelExpiry(ctx, ID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAdvertCancelExpiry", reflect.TypeOf((*MockDBRepo)(nil).GetAdvertCancelExpiry), ID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAdvertCancelExpiry", reflect.TypeOf((*MockDBRepo)(nil).GetAdvertCancelExpiry), ctx, ID)
 }
 
 // GetAdverts mocks base method.
@@ -96,15 +96,15 @@ func (mr *MockDBRepoMockRecorder) GetAdverts(UUID interface{}) *gomock.Call {
 }
 
 // RestoreAdvert mocks base method.
-func (m *MockDBRepo) RestoreAdvert(ID int64, newExpiredAt time.Time) error {
+func (m *MockDBRepo) RestoreAdvert(ctx context.Context, ID int64, newExpiredAt time.Time) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RestoreAdvert", ID, newExpiredAt)
+	ret := m.ctrl.Call(m, "RestoreAdvert", ctx, ID, newExpiredAt)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // RestoreAdvert indicates an expected call of RestoreAdvert.
-func (mr *MockDBRepoMockRecorder) RestoreAdvert(ID, newExpiredAt interface{}) *gomock.Call {
+func (mr *MockDBRepoMockRecorder) RestoreAdvert(ctx, ID, newExpiredAt interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RestoreAdvert", reflect.TypeOf((*MockDBRepo)(nil).RestoreAdvert), ID, newExpiredAt)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RestoreAdvert", reflect.TypeOf((*MockDBRepo)(nil).RestoreAdvert), ctx, ID, newExpiredAt)
 }
