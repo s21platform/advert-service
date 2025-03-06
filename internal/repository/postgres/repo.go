@@ -10,6 +10,7 @@ import (
 	"github.com/jmoiron/sqlx"
 
 	advert "github.com/s21platform/advert-proto/advert-proto"
+
 	"github.com/s21platform/advert-service/internal/config"
 	"github.com/s21platform/advert-service/internal/model"
 )
@@ -103,6 +104,50 @@ func (r *Repository) CancelAdvert(ctx context.Context, in *advert.CancelAdvertIn
 	_, err = r.connection.ExecContext(ctx, sql, args...)
 	if err != nil {
 		return fmt.Errorf("failed to set cancel status in data: %v", err)
+	}
+
+	return nil
+}
+
+func (r *Repository) GetAdvertCancelExpiry(ctx context.Context, ID int64) (*model.AdvertCancelExpiry, error) {
+	var cancelExpiry model.AdvertCancelExpiry
+
+	query := squirrel.
+		Select("is_canceled", "canceled_at", "expired_at").
+		From("advert_text").
+		Where(squirrel.Eq{"id": ID}).
+		PlaceholderFormat(squirrel.Dollar)
+
+	sql, args, err := query.ToSql()
+	if err != nil {
+		return nil, fmt.Errorf("failed to build select query: %v", err)
+	}
+
+	err = r.connection.GetContext(ctx, &cancelExpiry, sql, args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get advert data: %v", err)
+	}
+
+	return &cancelExpiry, nil
+}
+
+func (r *Repository) RestoreAdvert(ctx context.Context, ID int64, newExpiredAt time.Time) error {
+	query := squirrel.
+		Update("advert_text").
+		Set("is_canceled", false).
+		Set("canceled_at", nil).
+		Set("expired_at", newExpiredAt).
+		Where(squirrel.Eq{"id": ID}).
+		PlaceholderFormat(squirrel.Dollar)
+
+	sql, args, err := query.ToSql()
+	if err != nil {
+		return fmt.Errorf("failed to build update query: %v", err)
+	}
+
+	_, err = r.connection.ExecContext(ctx, sql, args...)
+	if err != nil {
+		return fmt.Errorf("failed to update advert: %v", err)
 	}
 
 	return nil

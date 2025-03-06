@@ -14,7 +14,7 @@ import (
 func AuthInterceptor(
 	ctx context.Context,
 	req interface{},
-	info *grpc.UnaryServerInfo,
+	_ *grpc.UnaryServerInfo,
 	handler grpc.UnaryHandler,
 ) (interface{}, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
