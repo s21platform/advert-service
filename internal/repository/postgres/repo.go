@@ -113,7 +113,7 @@ func (r *Repository) GetAdvertCancelExpiry(ctx context.Context, ID int64) (*mode
 	var cancelExpiry model.AdvertCancelExpiry
 
 	query := squirrel.
-		Select("canceled_at", "expired_at").
+		Select("is_canceled", "canceled_at", "expired_at").
 		From("advert_text").
 		Where(squirrel.Eq{"id": ID}).
 		PlaceholderFormat(squirrel.Dollar)

@@ -66,8 +66,8 @@ func (s *Service) RestoreAdvert(ctx context.Context, in *advert.RestoreAdvertIn)
 		return nil, status.Errorf(codes.Internal, "failed to get advert cancel info: %v", err)
 	}
 
-	if cancelExpiry.CanceledAt == nil {
-		return nil, status.Errorf(codes.Internal, "failed to advert wasn't canceled")
+	if !cancelExpiry.IsCanceled {
+		return nil, status.Errorf(codes.Internal, "failed to restore the advert due to a missing cancellation record")
 	}
 
 	timeDiff := time.Since(*cancelExpiry.CanceledAt)

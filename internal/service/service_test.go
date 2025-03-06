@@ -146,6 +146,7 @@ func TestServer_RestoreAdvert(t *testing.T) {
 		expiredAt := baseTime.Add(1 * time.Hour)
 
 		expectedCancelExpiry := model.AdvertCancelExpiry{
+			IsCanceled: true,
 			CanceledAt: &canceledAt,
 			ExpiredAt:  &expiredAt,
 		}
@@ -173,11 +174,12 @@ func TestServer_RestoreAdvert(t *testing.T) {
 		assert.Contains(t, st.Message(), "err")
 	})
 
-	t.Run("should_return_err_nil_canceled_at", func(t *testing.T) {
+	t.Run("should_return_err_was_not_canceled", func(t *testing.T) {
 		baseTime := time.Date(2025, 3, 4, 21, 0, 0, 0, time.UTC)
 		expiredAt := baseTime.Add(1 * time.Hour)
 
 		expectedCancelExpiry := model.AdvertCancelExpiry{
+			IsCanceled: false,
 			CanceledAt: nil,
 			ExpiredAt:  &expiredAt,
 		}
@@ -190,7 +192,7 @@ func TestServer_RestoreAdvert(t *testing.T) {
 		st, ok := status.FromError(err)
 		assert.True(t, ok)
 		assert.Equal(t, codes.Internal, st.Code())
-		assert.Contains(t, st.Message(), "failed to advert wasn't canceled")
+		assert.Contains(t, st.Message(), "failed to restore the advert due to a missing cancellation record")
 	})
 
 	t.Run("should_return_err_restore_advert", func(t *testing.T) {
@@ -201,6 +203,7 @@ func TestServer_RestoreAdvert(t *testing.T) {
 		expiredAt := baseTime.Add(1 * time.Hour)
 
 		expectedCancelExpiry := model.AdvertCancelExpiry{
+			IsCanceled: true,
 			CanceledAt: &canceledAt,
 			ExpiredAt:  &expiredAt,
 		}
