@@ -17,7 +17,10 @@ spec:
   lifecycle: production
   owner: advert-service-team  # GitHub-логин ответственного
   providesApis:
-    - Advert-v0
+    - GetAdverts-v0
+    - CreateAdvert-v0
+    - CancelAdvert-v0
+    - RestoreAdvert-v0
 #  consumesApis:
 #    - optionhub-api
 #  dependsOn:
