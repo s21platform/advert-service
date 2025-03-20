@@ -9,6 +9,7 @@ import (
 	"google.golang.org/grpc"
 
 	advert "github.com/s21platform/advert-proto/advert-proto"
+
 	"github.com/s21platform/advert-service/internal/config"
 	"github.com/s21platform/advert-service/internal/infra"
 	db "github.com/s21platform/advert-service/internal/repository/postgres"
