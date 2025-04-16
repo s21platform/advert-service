@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	logger_lib "github.com/s21platform/logger-lib"
 	"testing"
 	"time"
 
@@ -28,6 +29,9 @@ func TestServer_GetAdverts(t *testing.T) {
 	defer ctrl.Finish()
 	mockRepo := NewMockDBRepo(ctrl)
 
+	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+
 	t.Run("get_ok", func(t *testing.T) {
 		expectedAdverts := &model.AdvertInfoList{
 			{
@@ -40,6 +44,7 @@ func TestServer_GetAdverts(t *testing.T) {
 			},
 		}
 
+		mockLogger.EXPECT().AddFuncName("GetAdverts").Times(1)
 		mockRepo.EXPECT().GetAdverts(uuid).Return(expectedAdverts, nil)
 
 		s := New(mockRepo)
@@ -91,8 +96,12 @@ func TestServer_CreateAdverts(t *testing.T) {
 	defer ctrl.Finish()
 	mockRepo := NewMockDBRepo(ctrl)
 
+	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+
 	t.Run("create_ok", func(t *testing.T) {
 		mockRepo.EXPECT().CreateAdvert(ctx, uuid, gomock.Any()).Return(nil)
+		mockLogger.EXPECT().AddFuncName("CreateAdvert").Times(1)
 
 		s := New(mockRepo)
 		_, err := s.CreateAdvert(ctx, &advertproto.CreateAdvertIn{})
@@ -140,6 +149,9 @@ func TestServer_RestoreAdvert(t *testing.T) {
 	defer ctrl.Finish()
 	mockRepo := NewMockDBRepo(ctrl)
 
+	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+
 	t.Run("should_return_ok", func(t *testing.T) {
 		baseTime := time.Date(2025, 3, 4, 21, 0, 0, 0, time.UTC)
 		canceledAt := baseTime
@@ -151,6 +163,7 @@ func TestServer_RestoreAdvert(t *testing.T) {
 			ExpiredAt:  &expiredAt,
 		}
 
+		mockLogger.EXPECT().AddFuncName("RestoreAdvert").Times(1)
 		mockRepo.EXPECT().GetAdvertCancelExpiry(ctx, ID).Return(&expectedCancelExpiry, nil)
 		mockRepo.EXPECT().RestoreAdvert(ctx, ID, gomock.Any()).Return(nil)
 
@@ -233,7 +246,11 @@ func TestService_CancelAdvert(t *testing.T) {
 	defer ctrl.Finish()
 	mockRepo := NewMockDBRepo(ctrl)
 
+	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+
 	t.Run("cancel_ok", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("CancelAdvert").Times(1)
 		mockRepo.EXPECT().CancelAdvert(ctx, gomock.Any()).Return(nil)
 
 		s := New(mockRepo)
