@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	logger_lib "github.com/s21platform/logger-lib"
 	"testing"
 	"time"
@@ -28,11 +29,11 @@ func TestServer_GetAdverts(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	mockRepo := NewMockDBRepo(ctrl)
-
 	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
-	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
 
 	t.Run("get_ok", func(t *testing.T) {
+		ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+
 		expectedAdverts := &model.AdvertInfoList{
 			{
 				Content:   "деревянные изделия",
@@ -44,7 +45,7 @@ func TestServer_GetAdverts(t *testing.T) {
 			},
 		}
 
-		mockLogger.EXPECT().AddFuncName("GetAdverts").Times(1)
+		mockLogger.EXPECT().AddFuncName("GetAdverts")
 		mockRepo.EXPECT().GetAdverts(uuid).Return(expectedAdverts, nil)
 
 		s := New(mockRepo)
@@ -60,6 +61,10 @@ func TestServer_GetAdverts(t *testing.T) {
 		defer ctrl.Finish()
 		mockRepo := NewMockDBRepo(ctrl)
 
+		mockLogger.EXPECT().AddFuncName("GetAdverts")
+		ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+		mockLogger.EXPECT().Error("failed to find uuid")
+
 		s := New(mockRepo)
 		_, err := s.GetAdverts(ctx, &advertproto.AdvertEmpty{})
 
@@ -74,6 +79,10 @@ func TestServer_GetAdverts(t *testing.T) {
 		expectedErr := errors.New("get err")
 
 		mockRepo.EXPECT().GetAdverts(uuid).Return(expectedAdverts, expectedErr)
+
+		mockLogger.EXPECT().AddFuncName("GetAdverts")
+		ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+		mockLogger.EXPECT().Error(fmt.Sprintf("failed to find adverts: %v", expectedErr))
 
 		s := New(mockRepo)
 		_, err := s.GetAdverts(ctx, &advertproto.AdvertEmpty{})
@@ -97,11 +106,12 @@ func TestServer_CreateAdverts(t *testing.T) {
 	mockRepo := NewMockDBRepo(ctrl)
 
 	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
-	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
 
 	t.Run("create_ok", func(t *testing.T) {
+		ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+
 		mockRepo.EXPECT().CreateAdvert(ctx, uuid, gomock.Any()).Return(nil)
-		mockLogger.EXPECT().AddFuncName("CreateAdvert").Times(1)
+		mockLogger.EXPECT().AddFuncName("CreateAdvert")
 
 		s := New(mockRepo)
 		_, err := s.CreateAdvert(ctx, &advertproto.CreateAdvertIn{})
@@ -114,6 +124,10 @@ func TestServer_CreateAdverts(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 		mockRepo := NewMockDBRepo(ctrl)
+
+		mockLogger.EXPECT().AddFuncName("CreateAdvert")
+		ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+		mockLogger.EXPECT().Error("failed to find uuid")
 
 		s := New(mockRepo)
 		_, err := s.CreateAdvert(ctx, &advertproto.CreateAdvertIn{})
@@ -128,6 +142,8 @@ func TestServer_CreateAdverts(t *testing.T) {
 		expectedErr := errors.New("get err")
 
 		mockRepo.EXPECT().CreateAdvert(ctx, uuid, &advertproto.CreateAdvertIn{}).Return(expectedErr)
+		mockLogger.EXPECT().AddFuncName("CreateAdvert")
+		mockLogger.EXPECT().Error(fmt.Sprintf("failed to create advert: %v", expectedErr))
 
 		s := New(mockRepo)
 		_, err := s.CreateAdvert(ctx, &advertproto.CreateAdvertIn{})
@@ -150,9 +166,10 @@ func TestServer_RestoreAdvert(t *testing.T) {
 	mockRepo := NewMockDBRepo(ctrl)
 
 	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
-	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
 
 	t.Run("should_return_ok", func(t *testing.T) {
+		ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+
 		baseTime := time.Date(2025, 3, 4, 21, 0, 0, 0, time.UTC)
 		canceledAt := baseTime
 		expiredAt := baseTime.Add(1 * time.Hour)
@@ -178,6 +195,9 @@ func TestServer_RestoreAdvert(t *testing.T) {
 		expectedErr := errors.New("err")
 		mockRepo.EXPECT().GetAdvertCancelExpiry(ctx, ID).Return(nil, expectedErr)
 
+		mockLogger.EXPECT().AddFuncName("RestoreAdvert").Times(1)
+		mockLogger.EXPECT().Error(fmt.Sprintf("failed to get advert cancel info: %v", expectedErr))
+
 		s := New(mockRepo)
 		_, err := s.RestoreAdvert(ctx, &advertproto.RestoreAdvertIn{Id: ID})
 
@@ -198,6 +218,9 @@ func TestServer_RestoreAdvert(t *testing.T) {
 		}
 
 		mockRepo.EXPECT().GetAdvertCancelExpiry(ctx, ID).Return(&expectedCancelExpiry, nil)
+
+		mockLogger.EXPECT().AddFuncName("RestoreAdvert").Times(1)
+		mockLogger.EXPECT().Error("failed to restore the advert due to a missing cancellation record")
 
 		s := New(mockRepo)
 		_, err := s.RestoreAdvert(ctx, &advertproto.RestoreAdvertIn{Id: ID})
@@ -222,8 +245,10 @@ func TestServer_RestoreAdvert(t *testing.T) {
 		}
 
 		mockRepo.EXPECT().GetAdvertCancelExpiry(ctx, ID).Return(&expectedCancelExpiry, nil)
-
 		mockRepo.EXPECT().RestoreAdvert(ctx, ID, gomock.Any()).Return(expectedErr)
+
+		mockLogger.EXPECT().AddFuncName("RestoreAdvert").Times(1)
+		mockLogger.EXPECT().Error(fmt.Sprintf("failed to restore advert: %v", expectedErr))
 
 		s := New(mockRepo)
 		_, err := s.RestoreAdvert(ctx, &advertproto.RestoreAdvertIn{Id: ID})
@@ -247,9 +272,10 @@ func TestService_CancelAdvert(t *testing.T) {
 	mockRepo := NewMockDBRepo(ctrl)
 
 	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
-	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
 
 	t.Run("cancel_ok", func(t *testing.T) {
+		ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+
 		mockLogger.EXPECT().AddFuncName("CancelAdvert").Times(1)
 		mockRepo.EXPECT().CancelAdvert(ctx, gomock.Any()).Return(nil)
 
@@ -262,6 +288,9 @@ func TestService_CancelAdvert(t *testing.T) {
 		expectedErr := errors.New("cancel err")
 
 		mockRepo.EXPECT().CancelAdvert(ctx, gomock.Any()).Return(expectedErr)
+
+		mockLogger.EXPECT().AddFuncName("CancelAdvert").Times(1)
+		mockLogger.EXPECT().Error(fmt.Sprintf("failed to cancel advert: %v", expectedErr))
 
 		s := New(mockRepo)
 		_, err := s.CancelAdvert(ctx, &advertproto.CancelAdvertIn{})
