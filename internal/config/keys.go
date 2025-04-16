@@ -3,5 +3,6 @@ package config
 type key string
 
 const (
-	KeyUUID = key("uuid")
+	KeyUUID   = key("uuid")
+	KeyLogger = key("logger")
 )
