@@ -9,6 +9,7 @@ import (
 	"google.golang.org/grpc"
 
 	advert "github.com/s21platform/advert-proto/advert-proto"
+	logger_lib "github.com/s21platform/logger-lib"
 
 	"github.com/s21platform/advert-service/internal/config"
 	"github.com/s21platform/advert-service/internal/infra"
@@ -19,6 +20,8 @@ import (
 func main() {
 	cfg := config.MustLoad()
 
+	logger := logger_lib.New(cfg.Logger.Host, cfg.Logger.Port, cfg.Service.Name, cfg.Platform.Env)
+
 	dbRepo := db.New(cfg)
 	defer dbRepo.Close()
 
@@ -26,6 +29,7 @@ func main() {
 	server := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
 			infra.AuthInterceptor,
+			infra.Logger(logger),
 		),
 	)
 

@@ -10,6 +10,7 @@ type Config struct {
 	Service  Service
 	Postgres Postgres
 	Metrics  Metrics
+	Logger   Logger
 	Platform Platform
 }
 
@@ -29,6 +30,11 @@ type Postgres struct {
 type Metrics struct {
 	Host string `env:"GRAFANA_HOST"`
 	Port int    `env:"GRAFANA_PORT"`
+}
+
+type Logger struct {
+	Host string `env:"ADVERT_SERVICE_LOGGER_HOST"`
+	Port string `env:"ADVERT_SERVICE_LOGGER_PORT"`
 }
 
 type Platform struct {
