@@ -5,9 +5,8 @@ import (
 	"context"
 	"time"
 
-	advert "github.com/s21platform/advert-proto/advert-proto"
-
 	"github.com/s21platform/advert-service/internal/model"
+	"github.com/s21platform/advert-service/pkg/advert"
 )
 
 type DBRepo interface {

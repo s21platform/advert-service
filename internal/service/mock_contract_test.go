@@ -10,8 +10,8 @@ import (
 	time "time"
 
 	gomock "github.com/golang/mock/gomock"
-	advert_proto "github.com/s21platform/advert-proto/advert-proto"
 	model "github.com/s21platform/advert-service/internal/model"
+	advert "github.com/s21platform/advert-service/pkg/advert"
 )
 
 // MockDBRepo is a mock of DBRepo interface.
@@ -38,7 +38,7 @@ func (m *MockDBRepo) EXPECT() *MockDBRepoMockRecorder {
 }
 
 // CancelAdvert mocks base method.
-func (m *MockDBRepo) CancelAdvert(ctx context.Context, in *advert_proto.CancelAdvertIn) error {
+func (m *MockDBRepo) CancelAdvert(ctx context.Context, in *advert.CancelAdvertIn) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CancelAdvert", ctx, in)
 	ret0, _ := ret[0].(error)
@@ -52,7 +52,7 @@ func (mr *MockDBRepoMockRecorder) CancelAdvert(ctx, in interface{}) *gomock.Call
 }
 
 // CreateAdvert mocks base method.
-func (m *MockDBRepo) CreateAdvert(ctx context.Context, UUID string, in *advert_proto.CreateAdvertIn) error {
+func (m *MockDBRepo) CreateAdvert(ctx context.Context, UUID string, in *advert.CreateAdvertIn) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateAdvert", ctx, UUID, in)
 	ret0, _ := ret[0].(error)

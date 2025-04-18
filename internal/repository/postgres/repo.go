@@ -9,10 +9,9 @@ import (
 	"github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
 
-	advert "github.com/s21platform/advert-proto/advert-proto"
-
 	"github.com/s21platform/advert-service/internal/config"
 	"github.com/s21platform/advert-service/internal/model"
+	"github.com/s21platform/advert-service/pkg/advert"
 )
 
 type Repository struct {

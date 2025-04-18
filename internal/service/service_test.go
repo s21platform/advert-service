@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	logger_lib "github.com/s21platform/logger-lib"
 	"testing"
 	"time"
 
@@ -13,10 +12,11 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	advertproto "github.com/s21platform/advert-proto/advert-proto"
+	logger_lib "github.com/s21platform/logger-lib"
 
 	"github.com/s21platform/advert-service/internal/config"
 	"github.com/s21platform/advert-service/internal/model"
+	advertproto "github.com/s21platform/advert-service/pkg/advert"
 )
 
 func TestServer_GetAdverts(t *testing.T) {

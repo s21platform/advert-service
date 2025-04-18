@@ -3,15 +3,15 @@ package service
 import (
 	"context"
 	"fmt"
-	logger_lib "github.com/s21platform/logger-lib"
 	"time"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	advert "github.com/s21platform/advert-proto/advert-proto"
+	logger_lib "github.com/s21platform/logger-lib"
 
 	"github.com/s21platform/advert-service/internal/config"
+	"github.com/s21platform/advert-service/pkg/advert"
 )
 
 type Service struct {

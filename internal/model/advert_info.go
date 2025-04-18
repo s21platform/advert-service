@@ -5,7 +5,7 @@ import (
 
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	advert_proto "github.com/s21platform/advert-proto/advert-proto"
+	advert_proto "github.com/s21platform/advert-service/pkg/advert"
 )
 
 type AdvertInfoList []*AdvertInfo
