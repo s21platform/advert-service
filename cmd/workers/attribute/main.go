@@ -1,23 +1,23 @@
-package attribute
+package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
+	_ "github.com/lib/pq" // PostgreSQL driver
 	"log"
-	"time"
 
 	kafka_lib "github.com/s21platform/kafka-lib"
 	pkg "github.com/s21platform/metrics-lib/pkg"
 
 	"github.com/s21platform/advert-service/internal/config"
-	"github.com/s21platform/advert-service/internal/repository/postgres"
+	new_attribute "github.com/s21platform/advert-service/internal/databus/new_attribute"
+	db "github.com/s21platform/advert-service/internal/repository/postgres"
 )
 
 func main() {
 	cfg := config.MustLoad()
 
-	dbRepo := postgres.New(cfg)
+	dbRepo := db.New(cfg)
 	defer dbRepo.Close()
 
 	metrics, err := pkg.NewMetrics(cfg.Metrics.Host, cfg.Metrics.Port, cfg.Service.Name, cfg.Platform.Env)
@@ -35,19 +35,9 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	consumer.RegisterHandler(ctx, func(ctx context.Context, msg []byte) error {
-		// Пример десериализации JSON сообщения
-		var data map[string]interface{}
-		if err := json.Unmarshal(msg, &data); err != nil {
-			return fmt.Errorf("failed to parse JSON: %w", err)
-		}
-
-		// Обработка сообщения
-		fmt.Printf("Received message: %v\n", data)
-		return nil
-	})
+	consumer.RegisterHandler(ctx, new_attribute.NewAttribute)
 
 	fmt.Println("Consumer started")
 
-	time.Sleep(time.Second)
+	<-ctx.Done()
 }
