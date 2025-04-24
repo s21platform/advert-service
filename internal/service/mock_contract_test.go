@@ -65,6 +65,20 @@ func (mr *MockDBRepoMockRecorder) CreateAdvert(ctx, UUID, in interface{}) *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateAdvert", reflect.TypeOf((*MockDBRepo)(nil).CreateAdvert), ctx, UUID, in)
 }
 
+// EditAdvert mocks base method.
+func (m *MockDBRepo) EditAdvert(ctx context.Context, info *model.EditAdvert) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EditAdvert", ctx, info)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// EditAdvert indicates an expected call of EditAdvert.
+func (mr *MockDBRepoMockRecorder) EditAdvert(ctx, info interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EditAdvert", reflect.TypeOf((*MockDBRepo)(nil).EditAdvert), ctx, info)
+}
+
 // GetAdvertCancelExpiry mocks base method.
 func (m *MockDBRepo) GetAdvertCancelExpiry(ctx context.Context, ID int64) (*model.AdvertCancelExpiry, error) {
 	m.ctrl.T.Helper()
@@ -93,6 +107,36 @@ func (m *MockDBRepo) GetAdverts(UUID string) (*model.AdvertInfoList, error) {
 func (mr *MockDBRepoMockRecorder) GetAdverts(UUID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAdverts", reflect.TypeOf((*MockDBRepo)(nil).GetAdverts), UUID)
+}
+
+// GetOwnerUUID mocks base method.
+func (m *MockDBRepo) GetOwnerUUID(ctx context.Context, ID int) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetOwnerUUID", ctx, ID)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetOwnerUUID indicates an expected call of GetOwnerUUID.
+func (mr *MockDBRepoMockRecorder) GetOwnerUUID(ctx, ID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOwnerUUID", reflect.TypeOf((*MockDBRepo)(nil).GetOwnerUUID), ctx, ID)
+}
+
+// IsAdvertActive mocks base method.
+func (m *MockDBRepo) IsAdvertActive(ctx context.Context, ID int) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IsAdvertActive", ctx, ID)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// IsAdvertActive indicates an expected call of IsAdvertActive.
+func (mr *MockDBRepoMockRecorder) IsAdvertActive(ctx, ID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsAdvertActive", reflect.TypeOf((*MockDBRepo)(nil).IsAdvertActive), ctx, ID)
 }
 
 // RestoreAdvert mocks base method.

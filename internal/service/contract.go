@@ -15,4 +15,7 @@ type DBRepo interface {
 	CancelAdvert(ctx context.Context, in *advert.CancelAdvertIn) error
 	GetAdvertCancelExpiry(ctx context.Context, ID int64) (*model.AdvertCancelExpiry, error)
 	RestoreAdvert(ctx context.Context, ID int64, newExpiredAt time.Time) error
+	IsAdvertActive(ctx context.Context, ID int) (bool, error)
+	GetOwnerUUID(ctx context.Context, ID int) (string, error)
+	EditAdvert(ctx context.Context, info *model.EditAdvert) error
 }

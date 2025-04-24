@@ -9,6 +9,7 @@ service AdvertService {
   rpc CreateAdvert(CreateAdvertIn) returns (AdvertEmpty){};
   rpc CancelAdvert(CancelAdvertIn) returns (AdvertEmpty){};
   rpc RestoreAdvert(RestoreAdvertIn) returns (AdvertEmpty){};
+  rpc EditAdvert(EditAdvertIn) returns (AdvertEmpty){};
 }
 
 message AdvertEmpty {}
@@ -38,4 +39,10 @@ message CancelAdvertIn {
 
 message RestoreAdvertIn {
   int64 id = 1;
+}
+
+message EditAdvertIn {
+  int32 id = 1;
+  string text_content = 2;
+  UserFilter user_filter = 3;
 }
