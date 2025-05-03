@@ -116,7 +116,7 @@ func (s *Service) EditAdvert(ctx context.Context, in *advert.EditAdvertIn) (*adv
 
 	if !isActive {
 		logger.Error("failed to edit the advert, since it is not active")
-		return nil, status.Errorf(codes.Unavailable, "failed to advert is not active")
+		return nil, status.Errorf(codes.Unavailable, "failed to edit the advert, since it is not active")
 	}
 
 	uuid, ok := ctx.Value(config.KeyUUID).(string)

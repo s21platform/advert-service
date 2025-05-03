@@ -349,7 +349,7 @@ func TestServer_EditAdvert(t *testing.T) {
 
 		mockLogger.EXPECT().AddFuncName("EditAdvert").Times(1)
 		mockRepo.EXPECT().IsAdvertActive(testCtx, int(ID)).Return(false, expectedErr)
-		mockLogger.EXPECT().Error(fmt.Sprintf("failed to advert is not active: %v", expectedErr))
+		mockLogger.EXPECT().Error(fmt.Sprintf("failed to check if the advert is active or not: %v", expectedErr))
 
 		s := New(mockRepo)
 		_, err := s.EditAdvert(testCtx, input)
@@ -367,7 +367,7 @@ func TestServer_EditAdvert(t *testing.T) {
 
 		mockLogger.EXPECT().AddFuncName("EditAdvert").Times(1)
 		mockRepo.EXPECT().IsAdvertActive(testCtx, int(ID)).Return(false, nil)
-		mockLogger.EXPECT().Error("failed to advert is not active")
+		mockLogger.EXPECT().Error("failed to edit the advert, since it is not active")
 
 		s := New(mockRepo)
 		_, err := s.EditAdvert(testCtx, input)
@@ -375,7 +375,7 @@ func TestServer_EditAdvert(t *testing.T) {
 		st, ok := status.FromError(err)
 		assert.True(t, ok)
 		assert.Equal(t, codes.Unavailable, st.Code())
-		assert.Contains(t, st.Message(), "failed to advert is not active")
+		assert.Contains(t, st.Message(), "failed to edit the advert, since it is not active")
 	})
 
 	t.Run("should_return_err_missing_uuid", func(t *testing.T) {
