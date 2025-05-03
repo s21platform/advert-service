@@ -110,12 +110,12 @@ func (s *Service) EditAdvert(ctx context.Context, in *advert.EditAdvertIn) (*adv
 
 	isActive, err := s.dbR.IsAdvertActive(ctx, int(in.Id))
 	if err != nil {
-		logger.Error(fmt.Sprintf("failed to advert is not active: %v", err))
-		return nil, status.Errorf(codes.Internal, "failed to advert is not active: %v", err)
+		logger.Error(fmt.Sprintf("failed to check if the advert is active or not: %v", err))
+		return nil, status.Errorf(codes.Internal, "failed to check if the advert is active or not: %v", err)
 	}
 
 	if !isActive {
-		logger.Error("failed to advert is not active")
+		logger.Error("failed to edit the advert, since it is not active")
 		return nil, status.Errorf(codes.Unavailable, "failed to advert is not active")
 	}
 
