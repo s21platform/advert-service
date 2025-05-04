@@ -132,8 +132,8 @@ func (s *Service) EditAdvert(ctx context.Context, in *advert.EditAdvertIn) (*adv
 	}
 
 	if ownerUUID != uuid {
-		logger.Error("failed to user is not advert owner")
-		return nil, status.Errorf(codes.PermissionDenied, "failed to user is not advert owner")
+		logger.Error("failed to edit: user is not owner")
+		return nil, status.Errorf(codes.PermissionDenied, "failed to edit: user is not owner")
 	}
 
 	newAdvertData := &model.EditAdvert{}

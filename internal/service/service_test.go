@@ -426,7 +426,7 @@ func TestServer_EditAdvert(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("EditAdvert").Times(1)
 		mockRepo.EXPECT().IsAdvertActive(testCtx, int(ID)).Return(true, nil)
 		mockRepo.EXPECT().GetOwnerUUID(testCtx, int(ID)).Return("different_user", nil)
-		mockLogger.EXPECT().Error("failed to user is not advert owner")
+		mockLogger.EXPECT().Error("failed to edit: user is not owner")
 
 		s := New(mockRepo)
 		_, err := s.EditAdvert(testCtx, input)
@@ -434,7 +434,7 @@ func TestServer_EditAdvert(t *testing.T) {
 		st, ok := status.FromError(err)
 		assert.True(t, ok)
 		assert.Equal(t, codes.PermissionDenied, st.Code())
-		assert.Contains(t, st.Message(), "failed to user is not advert owner")
+		assert.Contains(t, st.Message(), "failed to edit: user is not owner")
 	})
 
 	t.Run("should_return_err_edit_advert", func(t *testing.T) {
