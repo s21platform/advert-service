@@ -3,15 +3,16 @@ package service
 import (
 	"context"
 	"fmt"
-	logger_lib "github.com/s21platform/logger-lib"
 	"time"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	advert "github.com/s21platform/advert-proto/advert-proto"
+	logger_lib "github.com/s21platform/logger-lib"
 
 	"github.com/s21platform/advert-service/internal/config"
+	"github.com/s21platform/advert-service/internal/model"
+	"github.com/s21platform/advert-service/pkg/advert"
 )
 
 type Service struct {
@@ -98,6 +99,49 @@ func (s *Service) RestoreAdvert(ctx context.Context, in *advert.RestoreAdvertIn)
 	if err != nil {
 		logger.Error(fmt.Sprintf("failed to restore advert: %v", err))
 		return nil, status.Errorf(codes.Internal, "failed to restore advert: %v", err)
+	}
+
+	return &advert.AdvertEmpty{}, nil
+}
+
+func (s *Service) EditAdvert(ctx context.Context, in *advert.EditAdvertIn) (*advert.AdvertEmpty, error) {
+	logger := logger_lib.FromContext(ctx, config.KeyLogger)
+	logger.AddFuncName("EditAdvert")
+
+	isActive, err := s.dbR.IsAdvertActive(ctx, int(in.Id))
+	if err != nil {
+		logger.Error(fmt.Sprintf("failed to check if the advert is active or not: %v", err))
+		return nil, status.Errorf(codes.Internal, "failed to check if the advert is active or not: %v", err)
+	}
+
+	if !isActive {
+		logger.Error("failed to edit the advert, since it is not active")
+		return nil, status.Errorf(codes.Unavailable, "failed to edit the advert, since it is not active")
+	}
+
+	uuid, ok := ctx.Value(config.KeyUUID).(string)
+	if !ok {
+		logger.Error("failed to find uuid")
+		return nil, status.Errorf(codes.Unauthenticated, "failed to find uuid")
+	}
+
+	ownerUUID, err := s.dbR.GetOwnerUUID(ctx, int(in.Id))
+	if err != nil {
+		logger.Error(fmt.Sprintf("failed to get owner uuid: %v", err))
+		return nil, status.Errorf(codes.Internal, "failed to get owner uuid: %v", err)
+	}
+
+	if ownerUUID != uuid {
+		logger.Error("failed to edit: user is not owner")
+		return nil, status.Errorf(codes.PermissionDenied, "failed to edit: user is not owner")
+	}
+
+	newAdvertData := &model.EditAdvert{}
+	newAdvertData.ToDTO(in)
+	err = s.dbR.EditAdvert(ctx, newAdvertData)
+	if err != nil {
+		logger.Error(fmt.Sprintf("failed to edit advert: %v", err))
+		return nil, status.Errorf(codes.Internal, "failed to edit advert: %v", err)
 	}
 
 	return &advert.AdvertEmpty{}, nil

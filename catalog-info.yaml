@@ -26,3 +26,105 @@ spec:
 #  dependsOn:
 #    - component:optionhub
 #  system: authentication-system  # Можно указать систему, если есть
+
+---
+
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: GetAdverts-v0
+  description: Получение списка рекламных объявлений по uuid их овнера
+  annotations:
+    github.com/project-slug: s21platform/advert-service # Укажите правильный репозиторий
+  #    backstage.io/techdocs-ref: dir:.  # Если планируете использовать TechDocs
+  tags:
+    - proto
+spec:
+  type: grpc
+  lifecycle: production
+  owner: advert-service-team  # GitHub-логин ответственного
+  definition: |
+    rpc GetAdverts(AdvertEmpty) returns (GetAdvertsOut){};
+
+    message AdvertEmpty {}
+    
+    message GetAdvertsOut {
+      repeated AdvertText adverts = 1;
+    }
+
+---
+
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: CreateAdvert-v0
+  description: Создание рекламного объявления
+  annotations:
+    github.com/project-slug: s21platform/advert-service # Укажите правильный репозиторий
+  #    backstage.io/techdocs-ref: dir:.  # Если планируете использовать TechDocs
+  tags:
+    - proto
+spec:
+  type: grpc
+  lifecycle: production
+  owner: advert-service-team  # GitHub-логин ответственного
+  definition: |
+    rpc CreateAdvert(CreateAdvertIn) returns (AdvertEmpty){};
+
+    message CreateAdvertIn {
+      string text = 1;
+      UserFilter user = 2;
+      google.protobuf.Timestamp expired_at = 3;
+    }
+    
+    message AdvertEmpty {}
+
+---
+
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: CancelAdvert-v0
+  description: Отмена рекламного объявления
+  annotations:
+    github.com/project-slug: s21platform/advert-service # Укажите правильный репозиторий
+  #    backstage.io/techdocs-ref: dir:.  # Если планируете использовать TechDocs
+  tags:
+    - proto
+spec:
+  type: grpc
+  lifecycle: production
+  owner: advert-service-team  # GitHub-логин ответственного
+  definition: |
+    rpc CancelAdvert(CancelAdvertIn) returns (AdvertEmpty){};
+
+    message CancelAdvertIn {
+      int64 id = 1;
+    }
+
+    message AdvertEmpty {}
+
+---
+
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: RestoreAdvert-v0
+  description: Возобновление рекламного объявления
+  annotations:
+    github.com/project-slug: s21platform/advert-service # Укажите правильный репозиторий
+  #    backstage.io/techdocs-ref: dir:.  # Если планируете использовать TechDocs
+  tags:
+    - proto
+spec:
+  type: grpc
+  lifecycle: production
+  owner: advert-service-team  # GitHub-логин ответственного
+  definition: |
+    rpc RestoreAdvert(RestoreAdvertIn) returns (AdvertEmpty){};
+
+    message RestoreAdvertIn {
+      int64 id = 1;
+    }    
+    
+    message AdvertEmpty {}

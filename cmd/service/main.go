@@ -8,13 +8,13 @@ import (
 	_ "github.com/lib/pq" // PostgreSQL driver
 	"google.golang.org/grpc"
 
-	advert "github.com/s21platform/advert-proto/advert-proto"
 	logger_lib "github.com/s21platform/logger-lib"
 
 	"github.com/s21platform/advert-service/internal/config"
 	"github.com/s21platform/advert-service/internal/infra"
 	db "github.com/s21platform/advert-service/internal/repository/postgres"
 	"github.com/s21platform/advert-service/internal/service"
+	"github.com/s21platform/advert-service/pkg/advert"
 )
 
 func main() {
