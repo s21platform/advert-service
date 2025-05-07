@@ -14,6 +14,8 @@ import (
 	db "github.com/s21platform/advert-service/internal/repository/postgres"
 )
 
+const attrConsGroup = "attribute_value_consumers"
+
 func main() {
 	cfg := config.MustLoad()
 
@@ -25,7 +27,7 @@ func main() {
 		log.Println("failed to connect graphite: ", err)
 	}
 
-	kafkaConfig := kafka_lib.DefaultConsumerConfig(cfg.Kafka.Host, cfg.Kafka.Port, cfg.Kafka.SetAttributeTopic, cfg.Kafka.Group)
+	kafkaConfig := kafka_lib.DefaultConsumerConfig(cfg.Kafka.Host, cfg.Kafka.Port, cfg.Kafka.SetAttributeTopic, attrConsGroup)
 
 	consumer, err := kafka_lib.NewConsumer(kafkaConfig, metrics)
 	if err != nil {

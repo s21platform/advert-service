@@ -41,8 +41,7 @@ type Logger struct {
 type Kafka struct {
 	Host              string `env:"KAFKA_HOST"`
 	Port              string `env:"KAFKA_PORT"`
-	SetAttributeTopic string `env:"KAFKA_STAFF_SET_ATTRIBUTE"`
-	Group             string `env:"KAFKA_ATTRIBUTE_GROUP"`
+	SetAttributeTopic string `env:"STAFF_SET_ATTRIBUTE"`
 }
 
 type Platform struct {
