@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "pkg/advert";
+
+service AdvertService {
+  rpc GetAdverts(AdvertEmpty) returns (GetAdvertsOut){};
+  rpc CreateAdvert(CreateAdvertIn) returns (AdvertEmpty){};
+  rpc CancelAdvert(CancelAdvertIn) returns (AdvertEmpty){};
+  rpc RestoreAdvert(RestoreAdvertIn) returns (AdvertEmpty){};
+  rpc EditAdvert(EditAdvertIn) returns (AdvertEmpty){};
+}
+
+message AdvertEmpty {}
+
+message AdvertText {
+  string text_content = 1;
+  google.protobuf.Timestamp expired_at = 2;
+}
+
+message GetAdvertsOut {
+  repeated AdvertText adverts = 1;
+}
+
+message UserFilter {
+  repeated int64 os = 1;
+}
+
+message CreateAdvertIn {
+  string text = 1;
+  UserFilter user = 2;
+  google.protobuf.Timestamp expired_at = 3;
+}
+
+message CancelAdvertIn {
+  int64 id = 1;
+}
+
+message RestoreAdvertIn {
+  int64 id = 1;
+}
+
+message EditAdvertIn {
+  int32 id = 1;
+  string text_content = 2;
+  UserFilter user_filter = 3;
+}

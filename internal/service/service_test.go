@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	logger_lib "github.com/s21platform/logger-lib"
 	"testing"
 	"time"
 
@@ -13,10 +12,11 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	advertproto "github.com/s21platform/advert-proto/advert-proto"
+	logger_lib "github.com/s21platform/logger-lib"
 
 	"github.com/s21platform/advert-service/internal/config"
 	"github.com/s21platform/advert-service/internal/model"
+	advertproto "github.com/s21platform/advert-service/pkg/advert"
 )
 
 func TestServer_GetAdverts(t *testing.T) {
@@ -299,5 +299,167 @@ func TestService_CancelAdvert(t *testing.T) {
 		assert.True(t, ok)
 		assert.Equal(t, codes.Internal, st.Code())
 		assert.Contains(t, st.Message(), "failed to cancel advert: cancel err")
+	})
+}
+
+func TestServer_EditAdvert(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	ID := int32(123)
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockRepo := NewMockDBRepo(ctrl)
+
+	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+
+	t.Run("should_return_ok", func(t *testing.T) {
+		testCtx := context.WithValue(ctx, config.KeyLogger, mockLogger)
+		testCtx = context.WithValue(testCtx, config.KeyUUID, "user123")
+
+		input := &advertproto.EditAdvertIn{
+			Id:          ID,
+			TextContent: "updated content",
+			UserFilter:  &advertproto.UserFilter{Os: []int64{22}},
+		}
+
+		mockLogger.EXPECT().AddFuncName("EditAdvert").Times(1)
+		mockRepo.EXPECT().IsAdvertActive(testCtx, int(ID)).Return(true, nil)
+		mockRepo.EXPECT().GetOwnerUUID(testCtx, int(ID)).Return("user123", nil)
+		mockRepo.EXPECT().EditAdvert(testCtx, gomock.Any()).DoAndReturn(func(_ context.Context, advert *model.EditAdvert) error {
+			assert.Equal(t, int(ID), advert.ID)
+			assert.Equal(t, "updated content", advert.TextContent)
+			assert.Equal(t, []int64{22}, advert.UserFilter.Os)
+			return nil
+		})
+
+		s := New(mockRepo)
+		result, err := s.EditAdvert(testCtx, input)
+
+		assert.NoError(t, err)
+		assert.Equal(t, &advertproto.AdvertEmpty{}, result)
+	})
+
+	t.Run("should_return_err_advert_active_check", func(t *testing.T) {
+		testCtx := context.WithValue(ctx, config.KeyLogger, mockLogger)
+		expectedErr := errors.New("db error")
+
+		input := &advertproto.EditAdvertIn{Id: ID}
+
+		mockLogger.EXPECT().AddFuncName("EditAdvert").Times(1)
+		mockRepo.EXPECT().IsAdvertActive(testCtx, int(ID)).Return(false, expectedErr)
+		mockLogger.EXPECT().Error(fmt.Sprintf("failed to check if the advert is active or not: %v", expectedErr))
+
+		s := New(mockRepo)
+		_, err := s.EditAdvert(testCtx, input)
+
+		st, ok := status.FromError(err)
+		assert.True(t, ok)
+		assert.Equal(t, codes.Internal, st.Code())
+		assert.Contains(t, st.Message(), expectedErr.Error())
+	})
+
+	t.Run("should_return_err_advert_not_active", func(t *testing.T) {
+		testCtx := context.WithValue(ctx, config.KeyLogger, mockLogger)
+
+		input := &advertproto.EditAdvertIn{Id: ID}
+
+		mockLogger.EXPECT().AddFuncName("EditAdvert").Times(1)
+		mockRepo.EXPECT().IsAdvertActive(testCtx, int(ID)).Return(false, nil)
+		mockLogger.EXPECT().Error("failed to edit the advert, since it is not active")
+
+		s := New(mockRepo)
+		_, err := s.EditAdvert(testCtx, input)
+
+		st, ok := status.FromError(err)
+		assert.True(t, ok)
+		assert.Equal(t, codes.Unavailable, st.Code())
+		assert.Contains(t, st.Message(), "failed to edit the advert, since it is not active")
+	})
+
+	t.Run("should_return_err_missing_uuid", func(t *testing.T) {
+		testCtx := context.WithValue(ctx, config.KeyLogger, mockLogger)
+
+		input := &advertproto.EditAdvertIn{Id: ID}
+
+		mockLogger.EXPECT().AddFuncName("EditAdvert").Times(1)
+		mockRepo.EXPECT().IsAdvertActive(testCtx, int(ID)).Return(true, nil)
+		mockLogger.EXPECT().Error("failed to find uuid")
+
+		s := New(mockRepo)
+		_, err := s.EditAdvert(testCtx, input)
+
+		st, ok := status.FromError(err)
+		assert.True(t, ok)
+		assert.Equal(t, codes.Unauthenticated, st.Code())
+		assert.Contains(t, st.Message(), "failed to find uuid")
+	})
+
+	t.Run("should_return_err_get_owner_uuid", func(t *testing.T) {
+		testCtx := context.WithValue(ctx, config.KeyLogger, mockLogger)
+		testCtx = context.WithValue(testCtx, config.KeyUUID, "user123")
+		expectedErr := errors.New("db error")
+
+		input := &advertproto.EditAdvertIn{Id: ID}
+
+		mockLogger.EXPECT().AddFuncName("EditAdvert").Times(1)
+		mockRepo.EXPECT().IsAdvertActive(testCtx, int(ID)).Return(true, nil)
+		mockRepo.EXPECT().GetOwnerUUID(testCtx, int(ID)).Return("", expectedErr)
+		mockLogger.EXPECT().Error(fmt.Sprintf("failed to get owner uuid: %v", expectedErr))
+
+		s := New(mockRepo)
+		_, err := s.EditAdvert(testCtx, input)
+
+		st, ok := status.FromError(err)
+		assert.True(t, ok)
+		assert.Equal(t, codes.Internal, st.Code())
+		assert.Contains(t, st.Message(), expectedErr.Error())
+	})
+
+	t.Run("should_return_err_not_owner", func(t *testing.T) {
+		testCtx := context.WithValue(ctx, config.KeyLogger, mockLogger)
+		testCtx = context.WithValue(testCtx, config.KeyUUID, "user123")
+
+		input := &advertproto.EditAdvertIn{Id: ID}
+
+		mockLogger.EXPECT().AddFuncName("EditAdvert").Times(1)
+		mockRepo.EXPECT().IsAdvertActive(testCtx, int(ID)).Return(true, nil)
+		mockRepo.EXPECT().GetOwnerUUID(testCtx, int(ID)).Return("different_user", nil)
+		mockLogger.EXPECT().Error("failed to edit: user is not owner")
+
+		s := New(mockRepo)
+		_, err := s.EditAdvert(testCtx, input)
+
+		st, ok := status.FromError(err)
+		assert.True(t, ok)
+		assert.Equal(t, codes.PermissionDenied, st.Code())
+		assert.Contains(t, st.Message(), "failed to edit: user is not owner")
+	})
+
+	t.Run("should_return_err_edit_advert", func(t *testing.T) {
+		testCtx := context.WithValue(ctx, config.KeyLogger, mockLogger)
+		testCtx = context.WithValue(testCtx, config.KeyUUID, "user123")
+		expectedErr := errors.New("db error")
+
+		input := &advertproto.EditAdvertIn{
+			Id:          ID,
+			TextContent: "updated content",
+			UserFilter:  &advertproto.UserFilter{Os: []int64{22}},
+		}
+
+		mockLogger.EXPECT().AddFuncName("EditAdvert").Times(1)
+		mockRepo.EXPECT().IsAdvertActive(testCtx, int(ID)).Return(true, nil)
+		mockRepo.EXPECT().GetOwnerUUID(testCtx, int(ID)).Return("user123", nil)
+		mockRepo.EXPECT().EditAdvert(testCtx, gomock.Any()).Return(expectedErr)
+		mockLogger.EXPECT().Error(fmt.Sprintf("failed to edit advert: %v", expectedErr))
+
+		s := New(mockRepo)
+		_, err := s.EditAdvert(testCtx, input)
+
+		st, ok := status.FromError(err)
+		assert.True(t, ok)
+		assert.Equal(t, codes.Internal, st.Code())
+		assert.Contains(t, st.Message(), expectedErr.Error())
 	})
 }

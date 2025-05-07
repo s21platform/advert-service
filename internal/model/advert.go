@@ -6,7 +6,7 @@ import (
 	"errors"
 	"time"
 
-	advert "github.com/s21platform/advert-proto/advert-proto"
+	"github.com/s21platform/advert-service/pkg/advert"
 )
 
 type Advert struct {

@@ -9,10 +9,9 @@ import (
 	"github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
 
-	advert "github.com/s21platform/advert-proto/advert-proto"
-
 	"github.com/s21platform/advert-service/internal/config"
 	"github.com/s21platform/advert-service/internal/model"
+	"github.com/s21platform/advert-service/pkg/advert"
 )
 
 type Repository struct {
@@ -146,6 +145,67 @@ func (r *Repository) RestoreAdvert(ctx context.Context, ID int64, newExpiredAt t
 	}
 
 	_, err = r.connection.ExecContext(ctx, sql, args...)
+	if err != nil {
+		return fmt.Errorf("failed to update advert: %v", err)
+	}
+
+	return nil
+}
+
+func (r *Repository) IsAdvertActive(ctx context.Context, ID int) (bool, error) {
+	query, args, err := squirrel.
+		Select("is_canceled", "is_banned", "expired_at").
+		From("advert_text").
+		Where(squirrel.Eq{"id": ID}).
+		PlaceholderFormat(squirrel.Dollar).
+		ToSql()
+	if err != nil {
+		return false, fmt.Errorf("failed to build select query: %v", err)
+	}
+
+	result := model.AdvertState{}
+	err = r.connection.GetContext(ctx, &result, query, args...)
+	if err != nil {
+		return false, fmt.Errorf("failed to query advert: %v", err)
+	}
+
+	isExpired := result.ExpiredAt.Valid && result.ExpiredAt.Time.Before(time.Now())
+	return !result.IsCanceled && !result.IsBanned && !isExpired, nil
+}
+
+func (r *Repository) GetOwnerUUID(ctx context.Context, ID int) (string, error) {
+	query, args, err := squirrel.
+		Select("owner_uuid").
+		From("advert_text").
+		Where(squirrel.Eq{"id": ID}).
+		PlaceholderFormat(squirrel.Dollar).
+		ToSql()
+	if err != nil {
+		return "", fmt.Errorf("failed to build select query: %v", err)
+	}
+
+	var ownerUUID string
+	err = r.connection.GetContext(ctx, &ownerUUID, query, args...)
+	if err != nil {
+		return "", fmt.Errorf("failed to query owner uuid: %v", err)
+	}
+
+	return ownerUUID, nil
+}
+
+func (r *Repository) EditAdvert(ctx context.Context, info *model.EditAdvert) error {
+	query, args, err := squirrel.
+		Update("advert_text").
+		Set("text_content", info.TextContent).
+		Set("filter", info.UserFilter).
+		Where(squirrel.Eq{"id": info.ID}).
+		PlaceholderFormat(squirrel.Dollar).
+		ToSql()
+	if err != nil {
+		return fmt.Errorf("failed to build update query: %v", err)
+	}
+
+	_, err = r.connection.ExecContext(ctx, query, args...)
 	if err != nil {
 		return fmt.Errorf("failed to update advert: %v", err)
 	}
