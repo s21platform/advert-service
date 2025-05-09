@@ -11,6 +11,7 @@ type Config struct {
 	Postgres Postgres
 	Metrics  Metrics
 	Logger   Logger
+	Kafka    Kafka
 	Platform Platform
 }
 
@@ -35,6 +36,12 @@ type Metrics struct {
 type Logger struct {
 	Host string `env:"ADVERT_SERVICE_LOGGER_HOST"`
 	Port string `env:"ADVERT_SERVICE_LOGGER_PORT"`
+}
+
+type Kafka struct {
+	Host              string `env:"KAFKA_HOST"`
+	Port              string `env:"KAFKA_PORT"`
+	SetAttributeTopic string `env:"STAFF_SET_ATTRIBUTE"`
 }
 
 type Platform struct {
