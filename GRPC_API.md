@@ -9,6 +9,8 @@
     - [CancelAdvertIn](#-CancelAdvertIn)
     - [CreateAdvertIn](#-CreateAdvertIn)
     - [EditAdvertIn](#-EditAdvertIn)
+    - [GetAdvertIn](#-GetAdvertIn)
+    - [GetAdvertOut](#-GetAdvertOut)
     - [GetAdvertsOut](#-GetAdvertsOut)
     - [RestoreAdvertIn](#-RestoreAdvertIn)
     - [UserFilter](#-UserFilter)
@@ -44,6 +46,8 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
+| id | [int64](#int64) |  |  |
+| title | [string](#string) |  |  |
 | text_content | [string](#string) |  |  |
 | expired_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  |  |
 
@@ -75,7 +79,8 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| text | [string](#string) |  |  |
+| title | [string](#string) |  |  |
+| text_content | [string](#string) |  |  |
 | user | [UserFilter](#UserFilter) |  |  |
 | expired_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  |  |
 
@@ -93,8 +98,39 @@
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | id | [int32](#int32) |  |  |
+| title | [string](#string) |  |  |
 | text_content | [string](#string) |  |  |
 | user_filter | [UserFilter](#UserFilter) |  |  |
+
+
+
+
+
+
+<a name="-GetAdvertIn"></a>
+
+### GetAdvertIn
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| id | [int64](#int64) |  |  |
+
+
+
+
+
+
+<a name="-GetAdvertOut"></a>
+
+### GetAdvertOut
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| advert | [AdvertText](#AdvertText) |  |  |
 
 
 

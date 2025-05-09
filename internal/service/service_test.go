@@ -19,6 +19,51 @@ import (
 	advertproto "github.com/s21platform/advert-service/pkg/advert"
 )
 
+func TestService_GetAdvert(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	uuid := "test-uuid"
+	ctx = context.WithValue(ctx, config.KeyUUID, uuid)
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockRepo := NewMockDBRepo(ctrl)
+	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+
+	t.Run("get_ok", func(t *testing.T) {
+		ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+
+		expectedAdvert := &model.AdvertInfo{
+			ID:        1,
+			Title:     "политбюро",
+			Content:   "деревянные изделия",
+			ExpiredAt: time.Now(),
+		}
+
+		mockLogger.EXPECT().AddFuncName("GetAdvert")
+		mockRepo.EXPECT().GetAdvert(gomock.Any()).Return(expectedAdvert, nil)
+
+		s := New(mockRepo)
+		advert, err := s.GetAdvert(ctx, &advertproto.GetAdvertIn{Id: 1})
+		assert.NoError(t, err)
+		assert.Equal(t, &advertproto.GetAdvertOut{Advert: expectedAdvert.FromDTO()}, advert)
+	})
+
+	t.Run("get_error", func(t *testing.T) {
+		ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+		expectedErr := errors.New("get err")
+
+		mockLogger.EXPECT().AddFuncName("GetAdvert")
+		mockRepo.EXPECT().GetAdvert(gomock.Any()).Return(nil, expectedErr)
+		mockLogger.EXPECT().Error(fmt.Sprintf("failed to get advert: %v", expectedErr))
+
+		s := New(mockRepo)
+		_, err := s.GetAdvert(ctx, &advertproto.GetAdvertIn{Id: 1})
+		assert.Error(t, err)
+	})
+}
+
 func TestServer_GetAdverts(t *testing.T) {
 	t.Parallel()
 

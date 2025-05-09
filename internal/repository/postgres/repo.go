@@ -11,7 +11,7 @@ import (
 
 	"github.com/s21platform/advert-service/internal/config"
 	"github.com/s21platform/advert-service/internal/model"
-	"github.com/s21platform/advert-service/pkg/advert"
+	advert_api "github.com/s21platform/advert-service/pkg/advert"
 )
 
 type Repository struct {
@@ -36,7 +36,7 @@ func (r *Repository) Close() {
 	_ = r.connection.Close()
 }
 
-func (r *Repository) CreateAdvert(ctx context.Context, UUID string, in *advert.CreateAdvertIn) error {
+func (r *Repository) CreateAdvert(ctx context.Context, UUID string, in *advert_api.CreateAdvertIn) error {
 	var advertObj model.Advert
 
 	advertObj, err := advertObj.AdvertToDTO(UUID, in)
@@ -45,8 +45,8 @@ func (r *Repository) CreateAdvert(ctx context.Context, UUID string, in *advert.C
 	}
 
 	query := squirrel.Insert("advert_text").
-		Columns("owner_uuid", "text_content", "filter", "expired_at").
-		Values(advertObj.OwnerUUID, advertObj.TextContent, advertObj.UserFilter, advertObj.ExpiresAt).
+		Columns("owner_uuid", "title", "text_content", "filter", "expired_at").
+		Values(advertObj.OwnerUUID, advertObj.Title, advertObj.TextContent, advertObj.UserFilter, advertObj.ExpiresAt).
 		PlaceholderFormat(squirrel.Dollar)
 
 	sql, args, err := query.ToSql()
@@ -63,10 +63,31 @@ func (r *Repository) CreateAdvert(ctx context.Context, UUID string, in *advert.C
 	return nil
 }
 
+func (r *Repository) GetAdvert(in *advert_api.GetAdvertIn) (*model.AdvertInfo, error) {
+	var advert model.AdvertInfo
+
+	query := squirrel.Select("id", "title", "text_content", "expired_at").
+		From("advert_text").
+		Where(squirrel.Eq{"id": in.Id}).
+		PlaceholderFormat(squirrel.Dollar)
+
+	sql, args, err := query.ToSql()
+	if err != nil {
+		return nil, fmt.Errorf("failed to build SQL query: %v", err)
+	}
+
+	err = r.connection.Select(&advert, sql, args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get advert from db: %v", err)
+	}
+
+	return &advert, nil
+}
+
 func (r *Repository) GetAdverts(UUID string) (*model.AdvertInfoList, error) {
 	var adverts model.AdvertInfoList
 
-	query := squirrel.Select("text_content", "expired_at").
+	query := squirrel.Select("id", "title", "text_content", "expired_at").
 		From("advert_text").
 		Where(squirrel.Eq{"owner_uuid": UUID}).
 		PlaceholderFormat(squirrel.Dollar)
@@ -84,7 +105,7 @@ func (r *Repository) GetAdverts(UUID string) (*model.AdvertInfoList, error) {
 	return &adverts, nil
 }
 
-func (r *Repository) CancelAdvert(ctx context.Context, in *advert.CancelAdvertIn) error {
+func (r *Repository) CancelAdvert(ctx context.Context, in *advert_api.CancelAdvertIn) error {
 	updateQuery := squirrel.Update("advert_text").
 		Set("is_canceled", true).
 		Set("canceled_at", time.Now()).
@@ -197,6 +218,7 @@ func (r *Repository) EditAdvert(ctx context.Context, info *model.EditAdvert) err
 	query, args, err := squirrel.
 		Update("advert_text").
 		Set("text_content", info.TextContent).
+		Set("title", info.Title).
 		Set("filter", info.UserFilter).
 		Where(squirrel.Eq{"id": info.ID}).
 		PlaceholderFormat(squirrel.Dollar).

@@ -6,11 +6,12 @@ import (
 	"errors"
 	"time"
 
-	"github.com/s21platform/advert-service/pkg/advert"
+	advert_api "github.com/s21platform/advert-service/pkg/advert"
 )
 
 type Advert struct {
 	OwnerUUID   string     `db:"owner_uuid"`
+	Title       string     `db:"title"`
 	TextContent string     `db:"text_content"`
 	UserFilter  UserFilter `db:"filter"`
 	ExpiresAt   time.Time  `db:"expired_at"`
@@ -41,10 +42,11 @@ func (uf UserFilter) Scan(value interface{}) error {
 	return json.Unmarshal(b, &uf)
 }
 
-func (a *Advert) AdvertToDTO(UUID string, in *advert.CreateAdvertIn) (Advert, error) {
+func (a *Advert) AdvertToDTO(UUID string, in *advert_api.CreateAdvertIn) (Advert, error) {
 	result := Advert{
 		OwnerUUID:   UUID,
-		TextContent: in.Text,
+		Title:       in.Title,
+		TextContent: in.TextContent,
 		UserFilter:  UserFilter{Os: in.User.Os},
 		ExpiresAt:   in.ExpiredAt.AsTime(),
 	}
