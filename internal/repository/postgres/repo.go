@@ -63,20 +63,19 @@ func (r *Repository) CreateAdvert(ctx context.Context, UUID string, in *advert_a
 	return nil
 }
 
-func (r *Repository) GetAdvert(in *advert_api.GetAdvertIn) (*model.AdvertInfo, error) {
+func (r *Repository) GetAdvert(ctx context.Context, in *advert_api.GetAdvertIn) (*model.AdvertInfo, error) {
 	var advert model.AdvertInfo
 
-	query := squirrel.Select("id", "title", "text_content", "expired_at").
+	query, args, err := squirrel.Select("id", "title", "text_content", "expired_at").
 		From("advert_text").
 		Where(squirrel.Eq{"id": in.Id}).
-		PlaceholderFormat(squirrel.Dollar)
-
-	sql, args, err := query.ToSql()
+		PlaceholderFormat(squirrel.Dollar).
+		ToSql()
 	if err != nil {
 		return nil, fmt.Errorf("failed to build SQL query: %v", err)
 	}
 
-	err = r.connection.Select(&advert, sql, args...)
+	err = r.connection.SelectContext(ctx, &advert, query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get advert from db: %v", err)
 	}

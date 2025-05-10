@@ -47,7 +47,7 @@ func (s *Service) GetAdvert(ctx context.Context, in *advert_api.GetAdvertIn) (*a
 	logger := logger_lib.FromContext(ctx, config.KeyLogger)
 	logger.AddFuncName("GetAdvert")
 
-	advert, err := s.dbR.GetAdvert(in)
+	advert, err := s.dbR.GetAdvert(ctx, in)
 	if err != nil {
 		logger.Error(fmt.Sprintf("failed to get advert: %v", err))
 		return nil, status.Errorf(codes.Internal, "failed to get advert: %v", err)

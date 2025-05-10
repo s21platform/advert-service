@@ -80,18 +80,18 @@ func (mr *MockDBRepoMockRecorder) EditAdvert(ctx, info interface{}) *gomock.Call
 }
 
 // GetAdvert mocks base method.
-func (m *MockDBRepo) GetAdvert(in *advert.GetAdvertIn) (*model.AdvertInfo, error) {
+func (m *MockDBRepo) GetAdvert(ctx context.Context, in *advert.GetAdvertIn) (*model.AdvertInfo, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAdvert", in)
+	ret := m.ctrl.Call(m, "GetAdvert", ctx, in)
 	ret0, _ := ret[0].(*model.AdvertInfo)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetAdvert indicates an expected call of GetAdvert.
-func (mr *MockDBRepoMockRecorder) GetAdvert(in interface{}) *gomock.Call {
+func (mr *MockDBRepoMockRecorder) GetAdvert(ctx, in interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAdvert", reflect.TypeOf((*MockDBRepo)(nil).GetAdvert), in)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAdvert", reflect.TypeOf((*MockDBRepo)(nil).GetAdvert), ctx, in)
 }
 
 // GetAdvertCancelExpiry mocks base method.

@@ -5,6 +5,7 @@ import "google/protobuf/timestamp.proto";
 option go_package = "pkg/advert";
 
 service AdvertService {
+  rpc GetAdvert(GetAdvertIn) returns (GetAdvertOut){};
   rpc GetAdverts(AdvertEmpty) returns (GetAdvertsOut){};
   rpc CreateAdvert(CreateAdvertIn) returns (AdvertEmpty){};
   rpc CancelAdvert(CancelAdvertIn) returns (AdvertEmpty){};

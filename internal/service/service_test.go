@@ -42,7 +42,7 @@ func TestService_GetAdvert(t *testing.T) {
 		}
 
 		mockLogger.EXPECT().AddFuncName("GetAdvert")
-		mockRepo.EXPECT().GetAdvert(gomock.Any()).Return(expectedAdvert, nil)
+		mockRepo.EXPECT().GetAdvert(ctx, gomock.Any()).Return(expectedAdvert, nil)
 
 		s := New(mockRepo)
 		advert, err := s.GetAdvert(ctx, &advertproto.GetAdvertIn{Id: 1})
@@ -55,7 +55,7 @@ func TestService_GetAdvert(t *testing.T) {
 		expectedErr := errors.New("get err")
 
 		mockLogger.EXPECT().AddFuncName("GetAdvert")
-		mockRepo.EXPECT().GetAdvert(gomock.Any()).Return(nil, expectedErr)
+		mockRepo.EXPECT().GetAdvert(ctx, gomock.Any()).Return(nil, expectedErr)
 		mockLogger.EXPECT().Error(fmt.Sprintf("failed to get advert: %v", expectedErr))
 
 		s := New(mockRepo)
