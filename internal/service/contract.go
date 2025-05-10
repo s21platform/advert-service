@@ -6,13 +6,14 @@ import (
 	"time"
 
 	"github.com/s21platform/advert-service/internal/model"
-	"github.com/s21platform/advert-service/pkg/advert"
+	advert_api "github.com/s21platform/advert-service/pkg/advert"
 )
 
 type DBRepo interface {
-	CreateAdvert(ctx context.Context, UUID string, in *advert.CreateAdvertIn) error
+	CreateAdvert(ctx context.Context, UUID string, in *advert_api.CreateAdvertIn) error
+	GetAdvert(ctx context.Context, in *advert_api.GetAdvertIn) (*model.AdvertInfo, error)
 	GetAdverts(UUID string) (*model.AdvertInfoList, error)
-	CancelAdvert(ctx context.Context, in *advert.CancelAdvertIn) error
+	CancelAdvert(ctx context.Context, in *advert_api.CancelAdvertIn) error
 	GetAdvertCancelExpiry(ctx context.Context, ID int64) (*model.AdvertCancelExpiry, error)
 	RestoreAdvert(ctx context.Context, ID int64, newExpiredAt time.Time) error
 	IsAdvertActive(ctx context.Context, ID int) (bool, error)

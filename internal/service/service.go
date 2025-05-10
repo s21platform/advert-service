@@ -12,11 +12,11 @@ import (
 
 	"github.com/s21platform/advert-service/internal/config"
 	"github.com/s21platform/advert-service/internal/model"
-	"github.com/s21platform/advert-service/pkg/advert"
+	advert_api "github.com/s21platform/advert-service/pkg/advert"
 )
 
 type Service struct {
-	advert.UnimplementedAdvertServiceServer
+	advert_api.UnimplementedAdvertServiceServer
 	dbR DBRepo
 }
 
@@ -24,7 +24,7 @@ func New(dbR DBRepo) *Service {
 	return &Service{dbR: dbR}
 }
 
-func (s *Service) CreateAdvert(ctx context.Context, in *advert.CreateAdvertIn) (*advert.AdvertEmpty, error) {
+func (s *Service) CreateAdvert(ctx context.Context, in *advert_api.CreateAdvertIn) (*advert_api.AdvertEmpty, error) {
 	logger := logger_lib.FromContext(ctx, config.KeyLogger)
 	logger.AddFuncName("CreateAdvert")
 
@@ -40,10 +40,25 @@ func (s *Service) CreateAdvert(ctx context.Context, in *advert.CreateAdvertIn) (
 		return nil, status.Errorf(codes.Internal, "failed to create advert: %v", err)
 	}
 
-	return &advert.AdvertEmpty{}, nil
+	return &advert_api.AdvertEmpty{}, nil
 }
 
-func (s *Service) GetAdverts(ctx context.Context, _ *advert.AdvertEmpty) (*advert.GetAdvertsOut, error) {
+func (s *Service) GetAdvert(ctx context.Context, in *advert_api.GetAdvertIn) (*advert_api.GetAdvertOut, error) {
+	logger := logger_lib.FromContext(ctx, config.KeyLogger)
+	logger.AddFuncName("GetAdvert")
+
+	advert, err := s.dbR.GetAdvert(ctx, in)
+	if err != nil {
+		logger.Error(fmt.Sprintf("failed to get advert: %v", err))
+		return nil, status.Errorf(codes.Internal, "failed to get advert: %v", err)
+	}
+
+	return &advert_api.GetAdvertOut{
+		Advert: advert.FromDTO(),
+	}, nil
+}
+
+func (s *Service) GetAdverts(ctx context.Context, _ *advert_api.AdvertEmpty) (*advert_api.GetAdvertsOut, error) {
 	logger := logger_lib.FromContext(ctx, config.KeyLogger)
 	logger.AddFuncName("GetAdverts")
 
@@ -59,12 +74,12 @@ func (s *Service) GetAdverts(ctx context.Context, _ *advert.AdvertEmpty) (*adver
 		return nil, status.Errorf(codes.Internal, "failed to find adverts: %v", err)
 	}
 
-	return &advert.GetAdvertsOut{
-		Adverts: adverts.FromDTO(),
+	return &advert_api.GetAdvertsOut{
+		Adverts: adverts.ListFromDTO(),
 	}, nil
 }
 
-func (s *Service) CancelAdvert(ctx context.Context, in *advert.CancelAdvertIn) (*advert.AdvertEmpty, error) {
+func (s *Service) CancelAdvert(ctx context.Context, in *advert_api.CancelAdvertIn) (*advert_api.AdvertEmpty, error) {
 	logger := logger_lib.FromContext(ctx, config.KeyLogger)
 	logger.AddFuncName("CancelAdvert")
 
@@ -74,10 +89,10 @@ func (s *Service) CancelAdvert(ctx context.Context, in *advert.CancelAdvertIn) (
 		return nil, status.Errorf(codes.Internal, "failed to cancel advert: %v", err)
 	}
 
-	return &advert.AdvertEmpty{}, nil
+	return &advert_api.AdvertEmpty{}, nil
 }
 
-func (s *Service) RestoreAdvert(ctx context.Context, in *advert.RestoreAdvertIn) (*advert.AdvertEmpty, error) {
+func (s *Service) RestoreAdvert(ctx context.Context, in *advert_api.RestoreAdvertIn) (*advert_api.AdvertEmpty, error) {
 	logger := logger_lib.FromContext(ctx, config.KeyLogger)
 	logger.AddFuncName("RestoreAdvert")
 
@@ -101,10 +116,10 @@ func (s *Service) RestoreAdvert(ctx context.Context, in *advert.RestoreAdvertIn)
 		return nil, status.Errorf(codes.Internal, "failed to restore advert: %v", err)
 	}
 
-	return &advert.AdvertEmpty{}, nil
+	return &advert_api.AdvertEmpty{}, nil
 }
 
-func (s *Service) EditAdvert(ctx context.Context, in *advert.EditAdvertIn) (*advert.AdvertEmpty, error) {
+func (s *Service) EditAdvert(ctx context.Context, in *advert_api.EditAdvertIn) (*advert_api.AdvertEmpty, error) {
 	logger := logger_lib.FromContext(ctx, config.KeyLogger)
 	logger.AddFuncName("EditAdvert")
 
@@ -144,5 +159,5 @@ func (s *Service) EditAdvert(ctx context.Context, in *advert.EditAdvertIn) (*adv
 		return nil, status.Errorf(codes.Internal, "failed to edit advert: %v", err)
 	}
 
-	return &advert.AdvertEmpty{}, nil
+	return &advert_api.AdvertEmpty{}, nil
 }

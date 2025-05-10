@@ -11,18 +11,26 @@ import (
 type AdvertInfoList []*AdvertInfo
 
 type AdvertInfo struct {
+	ID        int64     `db:"id"`
+	Title     string    `db:"title"`
 	Content   string    `db:"text_content"`
 	ExpiredAt time.Time `db:"expired_at"`
 }
 
-func (a *AdvertInfoList) FromDTO() []*advert_proto.AdvertText {
+func (a *AdvertInfo) FromDTO() *advert_proto.AdvertText {
+	return &advert_proto.AdvertText{
+		Id:          a.ID,
+		Title:       a.Title,
+		TextContent: a.Content,
+		ExpiredAt:   timestamppb.New(a.ExpiredAt),
+	}
+}
+
+func (a *AdvertInfoList) ListFromDTO() []*advert_proto.AdvertText {
 	result := make([]*advert_proto.AdvertText, 0, len(*a))
 
 	for _, advert := range *a {
-		result = append(result, &advert_proto.AdvertText{
-			TextContent: advert.Content,
-			ExpiredAt:   timestamppb.New(advert.ExpiredAt),
-		})
+		result = append(result, advert.FromDTO())
 	}
 
 	return result
