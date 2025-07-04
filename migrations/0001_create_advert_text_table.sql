@@ -6,13 +6,14 @@ CREATE TABLE IF NOT EXISTS adverts
     id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     owner_uuid   UUID NOT NULL,
     title        TEXT NOT NULL,
-    text_content TEXT,
-    expired_at   TIMESTAMP,
+    content TEXT NOT NULL,
+    expired_at   TIMESTAMP NOT NULL,
     created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     is_canceled BOOLEAN DEFAULT FALSE,
     canceled_at TIMESTAMP,
     is_banned BOOLEAN DEFAULT FALSE,
-    banned_at TIMESTAMP
+    banned_at TIMESTAMP,
+    deleted_at TIMESTAMP
 );
 -- +goose StatementEnd
 
