@@ -1,8 +1,9 @@
 -- +goose Up
 -- +goose StatementBegin
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 CREATE TABLE IF NOT EXISTS adverts
 (
-    id           SERIAL PRIMARY KEY,
+    id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     owner_uuid   UUID NOT NULL,
     title        TEXT NOT NULL,
     text_content TEXT,
@@ -18,4 +19,5 @@ CREATE TABLE IF NOT EXISTS adverts
 -- +goose Down
 -- +goose StatementBegin
 DROP TABLE IF EXISTS adverts;
+DROP EXTENSION IF EXISTS pgcrypto;
 -- +goose StatementEnd
