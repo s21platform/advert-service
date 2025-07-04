@@ -8,7 +8,11 @@ CREATE TABLE IF NOT EXISTS advert_text
     text_content TEXT,
     filter       JSONB,
     expired_at   TIMESTAMP,
-    created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_canceled BOOLEAN DEFAULT FALSE,
+    canceled_at TIMESTAMP,
+    is_banned BOOLEAN DEFAULT FALSE,
+    banned_at TIMESTAMP
 );
 -- +goose StatementEnd
 
