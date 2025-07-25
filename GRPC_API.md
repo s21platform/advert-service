@@ -4,7 +4,6 @@
 ## Table of Contents
 
 - [api/advert.proto](#api_advert-proto)
-    - [AdvertEmpty](#-AdvertEmpty)
     - [AdvertText](#-AdvertText)
     - [CancelAdvertIn](#-CancelAdvertIn)
     - [CreateAdvertIn](#-CreateAdvertIn)
@@ -25,16 +24,6 @@
 <p align="right"><a href="#top">Top</a></p>
 
 ## api/advert.proto
-
-
-
-<a name="-AdvertEmpty"></a>
-
-### AdvertEmpty
-
-
-
-
 
 
 
@@ -196,11 +185,11 @@
 | Method Name | Request Type | Response Type | Description |
 | ----------- | ------------ | ------------- | ------------|
 | GetAdvert | [.GetAdvertIn](#GetAdvertIn) | [.GetAdvertOut](#GetAdvertOut) |  |
-| GetAdverts | [.AdvertEmpty](#AdvertEmpty) | [.GetAdvertsOut](#GetAdvertsOut) |  |
-| CreateAdvert | [.CreateAdvertIn](#CreateAdvertIn) | [.AdvertEmpty](#AdvertEmpty) |  |
-| CancelAdvert | [.CancelAdvertIn](#CancelAdvertIn) | [.AdvertEmpty](#AdvertEmpty) |  |
-| RestoreAdvert | [.RestoreAdvertIn](#RestoreAdvertIn) | [.AdvertEmpty](#AdvertEmpty) |  |
-| EditAdvert | [.EditAdvertIn](#EditAdvertIn) | [.AdvertEmpty](#AdvertEmpty) |  |
+| GetAdverts | [.google.protobuf.Empty](#google-protobuf-Empty) | [.GetAdvertsOut](#GetAdvertsOut) |  |
+| CreateAdvert | [.CreateAdvertIn](#CreateAdvertIn) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
+| CancelAdvert | [.CancelAdvertIn](#CancelAdvertIn) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
+| RestoreAdvert | [.RestoreAdvertIn](#RestoreAdvertIn) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
+| EditAdvert | [.EditAdvertIn](#EditAdvertIn) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
 
  
 

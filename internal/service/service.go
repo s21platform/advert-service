@@ -7,6 +7,7 @@ import (
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	logger_lib "github.com/s21platform/logger-lib"
 
@@ -24,7 +25,7 @@ func New(dbR DBRepo) *Service {
 	return &Service{dbR: dbR}
 }
 
-func (s *Service) CreateAdvert(ctx context.Context, in *advert_api.CreateAdvertIn) (*advert_api.AdvertEmpty, error) {
+func (s *Service) CreateAdvert(ctx context.Context, in *advert_api.CreateAdvertIn) (*emptypb.Empty, error) {
 	logger := logger_lib.FromContext(ctx, config.KeyLogger)
 	logger.AddFuncName("CreateAdvert")
 
@@ -40,7 +41,7 @@ func (s *Service) CreateAdvert(ctx context.Context, in *advert_api.CreateAdvertI
 		return nil, status.Errorf(codes.Internal, "failed to create advert: %v", err)
 	}
 
-	return &advert_api.AdvertEmpty{}, nil
+	return &emptypb.Empty{}, nil
 }
 
 func (s *Service) GetAdvert(ctx context.Context, in *advert_api.GetAdvertIn) (*advert_api.GetAdvertOut, error) {
@@ -58,7 +59,7 @@ func (s *Service) GetAdvert(ctx context.Context, in *advert_api.GetAdvertIn) (*a
 	}, nil
 }
 
-func (s *Service) GetAdverts(ctx context.Context, _ *advert_api.AdvertEmpty) (*advert_api.GetAdvertsOut, error) {
+func (s *Service) GetAdverts(ctx context.Context, _ *emptypb.Empty) (*advert_api.GetAdvertsOut, error) {
 	logger := logger_lib.FromContext(ctx, config.KeyLogger)
 	logger.AddFuncName("GetAdverts")
 
@@ -79,7 +80,7 @@ func (s *Service) GetAdverts(ctx context.Context, _ *advert_api.AdvertEmpty) (*a
 	}, nil
 }
 
-func (s *Service) CancelAdvert(ctx context.Context, in *advert_api.CancelAdvertIn) (*advert_api.AdvertEmpty, error) {
+func (s *Service) CancelAdvert(ctx context.Context, in *advert_api.CancelAdvertIn) (*emptypb.Empty, error) {
 	logger := logger_lib.FromContext(ctx, config.KeyLogger)
 	logger.AddFuncName("CancelAdvert")
 
@@ -89,10 +90,10 @@ func (s *Service) CancelAdvert(ctx context.Context, in *advert_api.CancelAdvertI
 		return nil, status.Errorf(codes.Internal, "failed to cancel advert: %v", err)
 	}
 
-	return &advert_api.AdvertEmpty{}, nil
+	return &emptypb.Empty{}, nil
 }
 
-func (s *Service) RestoreAdvert(ctx context.Context, in *advert_api.RestoreAdvertIn) (*advert_api.AdvertEmpty, error) {
+func (s *Service) RestoreAdvert(ctx context.Context, in *advert_api.RestoreAdvertIn) (*emptypb.Empty, error) {
 	logger := logger_lib.FromContext(ctx, config.KeyLogger)
 	logger.AddFuncName("RestoreAdvert")
 
@@ -116,10 +117,10 @@ func (s *Service) RestoreAdvert(ctx context.Context, in *advert_api.RestoreAdver
 		return nil, status.Errorf(codes.Internal, "failed to restore advert: %v", err)
 	}
 
-	return &advert_api.AdvertEmpty{}, nil
+	return &emptypb.Empty{}, nil
 }
 
-func (s *Service) EditAdvert(ctx context.Context, in *advert_api.EditAdvertIn) (*advert_api.AdvertEmpty, error) {
+func (s *Service) EditAdvert(ctx context.Context, in *advert_api.EditAdvertIn) (*emptypb.Empty, error) {
 	logger := logger_lib.FromContext(ctx, config.KeyLogger)
 	logger.AddFuncName("EditAdvert")
 
@@ -159,5 +160,5 @@ func (s *Service) EditAdvert(ctx context.Context, in *advert_api.EditAdvertIn) (
 		return nil, status.Errorf(codes.Internal, "failed to edit advert: %v", err)
 	}
 
-	return &advert_api.AdvertEmpty{}, nil
+	return &emptypb.Empty{}, nil
 }

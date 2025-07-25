@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net"
 
 	_ "github.com/lib/pq" // PostgreSQL driver
@@ -35,11 +34,12 @@ func main() {
 
 	advert.RegisterAdvertServiceServer(server, advertService)
 
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", cfg.Service.Port))
+	listener, err := net.Listen("tcp", fmt.Sprintf(":%s", cfg.Service.Port))
 	if err != nil {
-		log.Fatalf("cannot listen port: %s; Error: %v", cfg.Service.Port, err)
+		logger.Error(fmt.Sprintf("failed to start TCP listener: %v", err))
 	}
-	if err = server.Serve(lis); err != nil {
-		log.Fatalf("cannot start grpc, port: %s; Error: %v", cfg.Service.Port, err)
+
+	if err = server.Serve(listener); err != nil {
+		logger.Error(fmt.Sprintf("failed to start gRPC listener: %v", err))
 	}
 }
