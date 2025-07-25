@@ -3,14 +3,15 @@ package main
 import (
 	"context"
 	"fmt"
-	_ "github.com/lib/pq" // PostgreSQL driver
 	"log"
+
+	_ "github.com/lib/pq" // PostgreSQL driver
 
 	kafka_lib "github.com/s21platform/kafka-lib"
 	pkg "github.com/s21platform/metrics-lib/pkg"
 
 	"github.com/s21platform/advert-service/internal/config"
-	new_attribute "github.com/s21platform/advert-service/internal/databus/new_attribute"
+	// new_attribute "github.com/s21platform/advert-service/internal/databus/new_attribute"
 	db "github.com/s21platform/advert-service/internal/repository/postgres"
 )
 
@@ -29,7 +30,7 @@ func main() {
 
 	kafkaConfig := kafka_lib.DefaultConsumerConfig(cfg.Kafka.Host, cfg.Kafka.Port, cfg.Kafka.SetAttributeTopic, attrConsGroup)
 
-	consumer, err := kafka_lib.NewConsumer(kafkaConfig, metrics)
+	_, err = kafka_lib.NewConsumer(kafkaConfig, metrics)
 	if err != nil {
 		log.Fatal("failed to create kafka consumer: ", err)
 	}
@@ -37,7 +38,7 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	consumer.RegisterHandler(ctx, new_attribute.NewAttribute)
+	// consumer.RegisterHandler(ctx, new_attribute.NewAttribute)
 
 	fmt.Println("Consumer started")
 

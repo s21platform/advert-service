@@ -1,18 +1,24 @@
 -- +goose Up
 -- +goose StatementBegin
-CREATE TABLE IF NOT EXISTS advert_text
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+CREATE TABLE IF NOT EXISTS adverts
 (
-    id           SERIAL PRIMARY KEY,
+    id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     owner_uuid   UUID NOT NULL,
     title        TEXT NOT NULL,
-    text_content TEXT,
-    filter       JSONB,
-    expired_at   TIMESTAMP,
-    created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    content TEXT NOT NULL,
+    expired_at   TIMESTAMP NOT NULL,
+    created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_canceled BOOLEAN DEFAULT FALSE,
+    canceled_at TIMESTAMP,
+    is_banned BOOLEAN DEFAULT FALSE,
+    banned_at TIMESTAMP,
+    deleted_at TIMESTAMP
 );
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE IF EXISTS advert_text;
+DROP TABLE IF EXISTS adverts;
+DROP EXTENSION IF EXISTS pgcrypto;
 -- +goose StatementEnd

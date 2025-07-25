@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	logger_lib "github.com/s21platform/logger-lib"
 
@@ -94,7 +95,7 @@ func TestServer_GetAdverts(t *testing.T) {
 		mockRepo.EXPECT().GetAdverts(uuid).Return(expectedAdverts, nil)
 
 		s := New(mockRepo)
-		adverts, err := s.GetAdverts(ctx, &advertproto.AdvertEmpty{})
+		adverts, err := s.GetAdverts(ctx, &emptypb.Empty{})
 		assert.NoError(t, err)
 		assert.Equal(t, adverts, &advertproto.GetAdvertsOut{Adverts: adverts.Adverts})
 	})
@@ -111,7 +112,7 @@ func TestServer_GetAdverts(t *testing.T) {
 		mockLogger.EXPECT().Error("failed to find uuid")
 
 		s := New(mockRepo)
-		_, err := s.GetAdverts(ctx, &advertproto.AdvertEmpty{})
+		_, err := s.GetAdverts(ctx, &emptypb.Empty{})
 
 		st, ok := status.FromError(err)
 		assert.True(t, ok)
@@ -130,7 +131,7 @@ func TestServer_GetAdverts(t *testing.T) {
 		mockLogger.EXPECT().Error(fmt.Sprintf("failed to find adverts: %v", expectedErr))
 
 		s := New(mockRepo)
-		_, err := s.GetAdverts(ctx, &advertproto.AdvertEmpty{})
+		_, err := s.GetAdverts(ctx, &emptypb.Empty{})
 
 		st, ok := status.FromError(err)
 		assert.True(t, ok)
@@ -233,7 +234,7 @@ func TestServer_RestoreAdvert(t *testing.T) {
 		result, err := s.RestoreAdvert(ctx, &advertproto.RestoreAdvertIn{Id: ID})
 
 		assert.NoError(t, err)
-		assert.Equal(t, result, &advertproto.AdvertEmpty{})
+		assert.Equal(t, result, &emptypb.Empty{})
 	})
 
 	t.Run("should_return_err_cancel_expiry", func(t *testing.T) {
@@ -383,7 +384,7 @@ func TestServer_EditAdvert(t *testing.T) {
 		result, err := s.EditAdvert(testCtx, input)
 
 		assert.NoError(t, err)
-		assert.Equal(t, &advertproto.AdvertEmpty{}, result)
+		assert.Equal(t, &emptypb.Empty{}, result)
 	})
 
 	t.Run("should_return_err_advert_active_check", func(t *testing.T) {
